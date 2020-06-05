@@ -1,0 +1,39 @@
+
+<assembly>
+    <id>assembly</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>src/assembly/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>src/assembly/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <!--如果工程依赖其他项目的conf，可以在这里添加-->
+        <fileSet>
+            <directory>src/main/resource</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <!--<fileSet>
+
+            <directory>../pre-api/src/main/assembly/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>../pre-api/src/main/assembly/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>-->
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <!-- 将工程的依赖包打包到lib目录下。 -->
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>
