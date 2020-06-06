@@ -41,10 +41,10 @@ public class App {
 
         try {
             UserCache.getInstance();
-            SaveOrderCache.getInstance();
-            OrderMapCache.getInstance();
-            GetOrderCache.getInstance();
-            BrandCache.getInstance();
+//            SaveOrderCache.getInstance();
+//            OrderMapCache.getInstance();
+//            GetOrderCache.getInstance();
+//            BrandCache.getInstance();
         } catch (DBAccessException e) {
             e.printStackTrace();
             logger.error("Error while init system cache , {}", e.getMessage());

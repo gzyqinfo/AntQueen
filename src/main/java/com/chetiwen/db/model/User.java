@@ -4,13 +4,12 @@ import java.sql.Date;
 
 public class User {
     private String userName;
-    private String appKey;
-    private int hidePassword;
+    private String partnerId;
+    private String partnerKey;
     private float balance;
     private Date createDate;
+    private Date expireDate;
     private int isValid;
-    private float userFee;
-
 
     public String getUserName() {
         return userName;
@@ -20,20 +19,20 @@ public class User {
         this.userName = userName;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getPartnerId() {
+        return partnerId;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setPartnerId(String partnerId) {
+        this.partnerId = partnerId;
     }
 
-    public int getHidePassword() {
-        return hidePassword;
+    public String getPartnerKey() {
+        return partnerKey;
     }
 
-    public void setHidePassword(int hidePassword) {
-        this.hidePassword = hidePassword;
+    public void setPartnerKey(String partnerKey) {
+        this.partnerKey = partnerKey;
     }
 
     public float getBalance() {
@@ -52,6 +51,14 @@ public class User {
         this.createDate = createDate;
     }
 
+    public Date getExpireDate() {
+        return expireDate;
+    }
+
+    public void setExpireDate(Date expireDate) {
+        this.expireDate = expireDate;
+    }
+
     public int getIsValid() {
         return isValid;
     }
@@ -60,24 +67,16 @@ public class User {
         this.isValid = isValid;
     }
 
-    public float getUserFee() {
-        return userFee;
-    }
-
-    public void setUserFee(float userFee) {
-        this.userFee = userFee;
-    }
-
     @Override
     public String toString() {
         return "User{" +
                 "userName='" + userName + '\'' +
-                ", appKey='" + appKey + '\'' +
-                ", hidePassword=" + hidePassword +
+                ", partnerId='" + partnerId + '\'' +
+                ", partnerKey='" + partnerKey + '\'' +
                 ", balance=" + balance +
                 ", createDate=" + createDate +
+                ", expireDate=" + expireDate +
                 ", isValid=" + isValid +
-                ", userFee=" + userFee +
                 '}';
     }
 }

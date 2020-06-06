@@ -3,6 +3,7 @@ package com.chetiwen.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.PackBody;
 
 import java.security.MessageDigest;
@@ -55,54 +56,6 @@ public class EncryptUtil {
     }
 
 
-    /**
-     * 对对象属性进行排序，输出排序后的字符串
-     * @param val
-     * @return
-     */
-    public static String getSortBody(Object val){
-        String bodyString=null;
-        //排序
-        if(val!=null){
-            Object obj1;
-            if(val instanceof JSONObject){
-                obj1=val;
-            }else{
-                System.out.println(val.toString());
-                //消除值为null的项
-                obj1= JSON.toJSON(val);
-                obj1= JSON.parseObject(obj1.toString());
-            }
-
-            if(obj1 instanceof JSONObject){
-                JSONObject obj=(JSONObject) obj1;
-                String[] arrs=new String[obj.size()];
-                int i=0;
-                for (Map.Entry<String, Object> item : obj.entrySet()) {
-                    arrs[i]=item.getKey();
-                    i++;
-                }
-                Arrays.sort(arrs);
-                String hand="{";
-                for(int j=0;j<arrs.length;j++){
-                    if(obj.get(arrs[j]) instanceof String){
-                        hand+="\""+arrs[j]+"\":\""+obj.get(arrs[j])+"\",";
-                    }else{
-                        hand+="\""+arrs[j]+"\":"+obj.get(arrs[j])+",";
-                    }
-
-                }
-                if(hand.length()>1){
-                    hand=hand.substring(0,hand.length()-1)+"}";
-                }else{
-                    hand="{}";
-                }
-
-                bodyString=hand;
-            }
-        }
-        return bodyString;
-    }
 
     /**
      * 对汉字进行转码
@@ -124,51 +77,7 @@ public class EncryptUtil {
     }
 
 
-    /**
-     * 计算sign
-     * @param packBody
-     * @return
-     * @throws Exception
-     */
-    public static String getSignString(PackBody packBody) throws Exception{
-        if(packBody==null){
-            throw new Exception("请求对象为空！");
-        }
-        if(packBody.getAppSecret()==null || packBody.getAppSecret()==""){
-            throw new Exception("appSecret设置不合法");
-        }
-        String sortData = getSortBody(packBody.getBody());
-        sortData = sortData.replace("/", "\\/");
-//        // 中文字符转为unicode
-        sortData = chinaToUnicode(sortData);
-        String bodyString=String.format("appKey=%s&appSecret=%s&body=%s&ticket=%s&timestamp=%s&version=%s",
-                packBody.getAppKey(),
-                packBody.getAppSecret(),
-                sortData,
-                packBody.getTicket(),
-                packBody.getTimestamp(),
-                packBody.getVersion());
-        return getMD5(bodyString).toUpperCase();
-    }
 
-    /**
-     * 计算sign，并赋值
-     * @param packBody
-     * @throws Exception
-     */
-    public static void setSignString(PackBody packBody) throws Exception{
-        String sign=getSignString(packBody);
-        packBody.setSign(sign);
-    }
-
-    /**
-     *
-     * @author 王欣宇
-     * @throws Exception
-     * @time 2018年3月21日 下午3:20:12
-     * @todo 计算签名
-     * @remark
-     */
     public static void main(String[] args) throws Exception {
         JSONObject json = new JSONObject();
         json.fluentPut("version", 1);
@@ -179,22 +88,13 @@ public class EncryptUtil {
         JSONObject body = new JSONObject();
         body.fluentPut("vin", "JTEES42A882102414");
         json.fluentPut("body", body);
-        System.out.println(EncryptUtil.getSignString(JSONObject.parseObject(json.toJSONString(), PackBody.class)));
+//        System.out.println(EncryptUtil.getSignString(JSONObject.parseObject(json.toJSONString(), PackBody.class)));
     }
 
 
-    public static String getBase64Sign(String appKey, int timestamp) throws Exception {
-        byte[] base64decodedBytes = Base64.getDecoder().decode(appKey);
-        int hidePassword = Integer.valueOf(new String(base64decodedBytes, "utf-8")).intValue();
-
-        long signValue = (long)hidePassword * 7 + (long)timestamp;
-
-        return Base64.getEncoder().encodeToString(String.valueOf(signValue).getBytes("utf-8"));
-
-    }
 
 
-    public static String getAntSign(AntPack packBody, String partnerKey) throws Exception{
+    public static String getAntSign(Object packBody, String partnerKey) throws Exception{
         if(packBody==null){
             throw new Exception("请求对象为空！");
         }

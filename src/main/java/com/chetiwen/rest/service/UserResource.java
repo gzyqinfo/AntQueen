@@ -34,7 +34,6 @@ public class UserResource {
         try {
             UserCache.getInstance().refreshCache();
 
-
             List<User> dataList = UserCache.getInstance().getUserMap().values()
                     .stream().collect(Collectors.toList());
 
@@ -47,16 +46,16 @@ public class UserResource {
     }
 
     @GET
-    @Path("/list/{userId}")
+    @Path("/list/{partnerId}")
     @Produces("application/json;charset=UTF-8")
-    public Response listUser(@PathParam("userId") String userId) {
-        logger.info("Received User list request with userId {} ", userId);
+    public Response listUser(@PathParam("partnerId") String partnerId) {
+        logger.info("Received User request with partnerId {} ", partnerId);
         User user;
         try {
             UserCache.getInstance().refreshCache();
-            user = UserCache.getInstance().getByKey(userId)==null?UserCache.getInstance().getByName(userId):UserCache.getInstance().getByKey(userId);
+            user = UserCache.getInstance().getByKey(partnerId)==null?UserCache.getInstance().getByName(partnerId):UserCache.getInstance().getByKey(partnerId);
             if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("No such user。").build();
+                return Response.status(Response.Status.NOT_FOUND).entity("No such user!").build();
             }
 
             return Response.status(Response.Status.OK).entity(new JSONObject().toJSONString(user)).build();
@@ -65,41 +64,18 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
     @PUT
-    @Path("/update/{app_key}/{user_fee}")
+    @Path("/charge/{partner_id}/{charge}")
     @Produces("application/json;charset=UTF-8")
-    public Response updateUserFee(@PathParam("app_key") String appKey,
-                               @PathParam("user_fee") float userFee) {
-        logger.info("Received update user data request. appKey: {}, userFee", appKey, userFee);
+    public Response userCharge(@PathParam("partner_id") String partnerId,
+                               @PathParam("charge") float chargeMoney) {
+        logger.info("Received charge user data request. partner_id: {}, chargeMoney {}",partnerId,  chargeMoney);
 
         User user;
         try {
-            user = UserCache.getInstance().getByKey(appKey)==null?UserCache.getInstance().getByName(appKey):UserCache.getInstance().getByKey(appKey);
-
-            if (user == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("No such user。").build();
-            }
-
-            user.setUserFee(userFee);
-
-            UserCache.getInstance().updateUser(user);
-        } catch (DBAccessException e) {
-            logger.error("Fail to connect to DataBase . error: {}" , e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" user_fee now is ： "+user.getUserFee()).build();
-    }
-
-    @PUT
-    @Path("/charge/{app_key}/{balance}")
-    @Produces("application/json;charset=UTF-8")
-    public Response userCharge(@PathParam("app_key") String appKey,
-                               @PathParam("balance") float chargeMoney) {
-        logger.info("Received charge user data request. appKey: {}, chargeMoney {}",appKey,  chargeMoney);
-
-        User user;
-        try {
-            user = UserCache.getInstance().getByKey(appKey)==null?UserCache.getInstance().getByName(appKey):UserCache.getInstance().getByKey(appKey);
+            user = UserCache.getInstance().getByKey(partnerId)==null?UserCache.getInstance().getByName(partnerId):UserCache.getInstance().getByKey(partnerId);
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No such user。").build();
@@ -123,26 +99,25 @@ public class UserResource {
     public Response postUser(User user) throws Exception {
         logger.info("Received post user data request. user: {}", user);
 
-        String appKey;
-        int hidePassword;
+        String partnerKey;
+        long partnerId;
 
         do {
-            hidePassword = (int)(Math.random()*900000000)+100000000;
-            appKey = Base64.getEncoder().encodeToString(String.valueOf(hidePassword).getBytes("utf-8"));
-        } while (UserCache.getInstance().getUserMap().containsKey(appKey));
+            partnerId = (long)(Math.random()*900000000)+100000000;
+            partnerKey = Base64.getEncoder().encodeToString(String.valueOf(partnerId*1234).getBytes("utf-8"));
+        } while (UserCache.getInstance().getUserMap().containsKey(String.valueOf(partnerId)));
 
-        user.setHidePassword(hidePassword);
-        user.setAppKey(appKey);
+        user.setPartnerId(String.valueOf(partnerId));
+        user.setPartnerKey(partnerKey);
 
         UserCache.getInstance().addUser(user);
 
-        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" created successfully. App Key: "+appKey+" 。Balance："+user.getBalance()).build();
+        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" created successfully. Partner ID: "+partnerId+"; Partner Key: "+partnerKey +" .Balance："+user.getBalance()).build();
     }
 
     public static void userOperation(String urlPrefix) throws Exception {
         Client restClient;
         WebResource webResource;
-
 
         ClientConfig config = new DefaultClientConfig();
         config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
@@ -158,8 +133,7 @@ public class UserResource {
             System.out.println("***********************************");
             System.out.println("*   1. Create New User            *");
             System.out.println("*   2. User Charge                *");
-            System.out.println("*   3. Change User Fee            *");
-            System.out.println("*   4. Show User Info             *");
+            System.out.println("*   3. Show User Info             *");
             System.out.println("***********************************");
             System.out.println();
             System.out.print("- Please choose your option(0 to quit): ");
@@ -177,14 +151,11 @@ public class UserResource {
                 System.out.print("Input User Balance: ");
                 float balance = Float.valueOf(input.readLine());
                 user.setBalance(balance);
-                System.out.print("Input User Fee: ");
-                float userFee = Float.valueOf(input.readLine());
-                user.setUserFee(userFee);
+
 
                 System.out.println("The user to create is : ");
                 System.out.println("Name: " + userName);
                 System.out.println("Balance: " + balance);
-                System.out.println("UserFee: " + userFee);
                 System.out.println();
                 System.out.print("Is it correct ? (Y or N):");
                 String isCorrect = input.readLine();
@@ -218,27 +189,6 @@ public class UserResource {
                     System.out.println("Please choose again.");
                 }
             } else if ("3".equals(str)) {
-                System.out.println();
-                System.out.print("Input User Name: ");
-                String userName = input.readLine();
-                System.out.print("Input User Fee: ");
-                float newUserFee = Float.valueOf(input.readLine());
-
-                System.out.println("The user to update is : ");
-                System.out.println("Name: " + userName);
-                System.out.println("User Fee: " + newUserFee);
-                System.out.println();
-                System.out.print("Is it correct ? (Y or N):");
-                String isCorrect = input.readLine();
-                if ("Y".equalsIgnoreCase(isCorrect)) {
-                    String url = urlPrefix + "/update/" + userName + "/" + newUserFee;
-                    webResource = restClient.resource(url);
-                    ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).put(ClientResponse.class);
-                    System.out.println(response.getEntity(String.class));
-                } else {
-                    System.out.println("Please choose again.");
-                }
-            } else if ("4".equals(str)) {
                 System.out.println();
                 System.out.print("Input User Name: ");
                 String userName = input.readLine();

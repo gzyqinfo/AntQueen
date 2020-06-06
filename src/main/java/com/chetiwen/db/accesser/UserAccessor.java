@@ -36,13 +36,13 @@ public class UserAccessor {
             List<User> list = new ArrayList<>();
             while(rs.next()){
                 User user = new User();
-                user.setAppKey(rs.getString("app_key"));
+                user.setPartnerId(rs.getString("partner_id"));
                 user.setBalance(rs.getFloat("balance"));
                 user.setCreateDate(rs.getDate("create_date"));
-                user.setHidePassword(rs.getInt("hide_password"));
+                user.setPartnerKey(rs.getString("partner_key"));
                 user.setUserName(rs.getString("user_name"));
                 user.setIsValid(rs.getInt("is_valid"));
-                user.setUserFee(rs.getFloat("user_fee"));
+                user.setExpireDate(rs.getDate("expire_date"));
 
                 list.add(user);
             }
@@ -57,16 +57,15 @@ public class UserAccessor {
     public void addUser(User user) throws DBAccessException {
         logger.info("Received add user data request. message type: {}", user.toString());
 
-        String sql = "insert into user(user_name, app_key, hide_password, balance,user_fee,create_date,is_valid) " +
-                "values (?,?,?,?,?,current_date(),1)";
+        String sql = "insert into user(user_name, partner_id, partner_key, balance) " +
+                "values (?,?,?,?)";
         Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, user.getUserName());
-            preparedStatement.setString(2, user.getAppKey());
-            preparedStatement.setInt(3, user.getHidePassword());
+            preparedStatement.setString(2, user.getPartnerId());
+            preparedStatement.setString(3, user.getPartnerKey());
             preparedStatement.setFloat(4, user.getBalance());
-            preparedStatement.setFloat(5,user.getUserFee());
             preparedStatement.executeUpdate();
             connection.close();
         } catch (SQLException e) {
@@ -81,8 +80,7 @@ public class UserAccessor {
         String sql = new StringBuilder().append("update user ")
                 .append("set user_name = \"").append(user.getUserName()).append("\"")
                 .append(", balance = ").append(user.getBalance())
-                .append(", user_fee = ").append(user.getUserFee())
-                .append(" where app_key = \"").append(user.getAppKey()).append("\"")
+                .append(" where partner_id = \"").append(user.getPartnerId()).append("\"")
                 .toString();
         Connection connection = ConnectionPool.getConnection();
         try {
@@ -91,6 +89,6 @@ public class UserAccessor {
         } catch (SQLException e) {
             throw new DBAccessException(connection, e);
         }
-        logger.info("updated user record for app_key : {}", user.getAppKey());
+        logger.info("updated user record for partner_id : {}", user.getPartnerId());
     }
 }

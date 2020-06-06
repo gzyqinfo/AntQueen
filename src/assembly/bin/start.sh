@@ -10,10 +10,10 @@ LOGS_DIR=$DEPLOY_DIR/logs
 if [ ! -d $LOGS_DIR ]; then
     mkdir $LOGS_DIR
 fi
-STDOUT_FILE=$LOGS_DIR/MyConnection.log
+STDOUT_FILE=$LOGS_DIR/AntQueen.log
 
 CURRENT_DATE=`date '+%Y-%m-%d'`
-STDERR_FILE=$LOGS_DIR/stderr_MyConnection.log.$CURRENT_DATE
+STDERR_FILE=$LOGS_DIR/stderr_AntQueen.log.$CURRENT_DATE
 
 LIB_DIR=$DEPLOY_DIR/lib
 LIB_JARS=`ls $LIB_DIR|grep .jar|awk '{print "'$LIB_DIR'/"$0}'|tr "\n" ":"`
@@ -37,7 +37,7 @@ else
     JAVA_MEM_OPTS=" -server -Xms256m -Xmx256m -XX:PermSize=128m -XX:SurvivorRatio=2 -XX:+UseParallelGC "
 fi
 
-echo -e "Starting the MyConnection ...\c"
+echo -e "Starting the AntQueen ...\c"
 nohup java $JAVA_OPTS $JAVA_MEM_OPTS $JAVA_DEBUG_OPTS $JAVA_JMX_OPTS -classpath $CONF_DIR:$LIB_JARS com.chetiwen.server.App > /dev/null 2>>$STDERR_FILE &
 
 

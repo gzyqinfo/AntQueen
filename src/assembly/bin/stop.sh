@@ -7,4 +7,4 @@ DEPLOY_DIR=`pwd`
 PIDS=`ps -ef | grep java | grep "$DEPLOY_DIR" | awk '{print $2}'`
 
 kill $PIDS
-echo "MyConnection stopped!"
+echo "AntQueen stopped!"

@@ -38,7 +38,7 @@ public class UserCache {
         List<User> list = UserAccessor.getInstance().getAllUsers();
 
         list.forEach(user->{
-            idMap.put(user.getAppKey(), user);
+            idMap.put(user.getPartnerId(), user);
             nameMap.put(user.getUserName(), user);
         });
 
@@ -68,7 +68,7 @@ public class UserCache {
         logger.info("add into user cache: {}", user);
 
         UserAccessor.getInstance().addUser(user);
-        idMap.put(user.getAppKey(), user);
+        idMap.put(user.getPartnerId(), user);
         nameMap.put(user.getUserName(), user);
     }
 
@@ -76,7 +76,7 @@ public class UserCache {
         logger.info("update user cache for user: {}/{}", user.getUserName(), user);
 
         UserAccessor.getInstance().updateUser(user);
-        idMap.put(user.getAppKey(), user);
+        idMap.put(user.getPartnerId(), user);
         nameMap.put(user.getUserName(), user);
     }
 
