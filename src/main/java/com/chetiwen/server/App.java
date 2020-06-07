@@ -44,7 +44,8 @@ public class App {
 //            SaveOrderCache.getInstance();
 //            OrderMapCache.getInstance();
 //            GetOrderCache.getInstance();
-//            BrandCache.getInstance();
+            BrandCache.getInstance();
+            UserRateCache.getInstance();
         } catch (DBAccessException e) {
             e.printStackTrace();
             logger.error("Error while init system cache , {}", e.getMessage());
