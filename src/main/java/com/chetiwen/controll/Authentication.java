@@ -18,9 +18,10 @@ public class Authentication {
 
     public static boolean authenticateTime(int timestamp) {
         int currentTime = (int) (System.currentTimeMillis()/1000);
-        if (currentTime - timestamp < 600) {
+        if (currentTime - timestamp < 300) {   // 5 minutes valid
             return true;
         }
+        logger.warn("authentication failed : Over time.");
         return false;
     }
 
@@ -48,14 +49,18 @@ public class Authentication {
         try {
             AntRequest antRequest = JSONObject.parseObject(JSONObject.toJSONString(clientRequest), AntRequest.class);
 
+            if (!authenticateTime(antRequest.getTs())) {
+                return false;
+            }
+
             User user = UserCache.getInstance().getByKey(antRequest.getPartnerId());
 
             if (user != null) {
                 // for example clientRequest is {"sign":"35ccdaaf743be5fea0b06cf8668ed8ae","vin":"LBVKY9103KSR90425","partnerId":"12345678","ts":1591408116}
                 // To remove sign field .
-                int position = clientRequest.toString().indexOf("\"sign");
-                String prefix = clientRequest.toString().substring(0, position);
-                String suffix = clientRequest.toString().substring(position+42); // MD5 must be 32
+                int position = JSONObject.toJSONString(clientRequest).indexOf("sign");
+                String prefix = JSONObject.toJSONString(clientRequest).substring(0, position);
+                String suffix = JSONObject.toJSONString(clientRequest).substring(position+42); // MD5 must be 32
 
                 String serverSign = EncryptUtil.getAntSign(prefix+suffix, user.getPartnerKey());
                 if (serverSign.toLowerCase().equals(antRequest.getSign())) {

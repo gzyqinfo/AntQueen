@@ -6,11 +6,9 @@ public class TransactionLog {
     private int logId;
     private String logType;
     private String userName;
-    private String appKey;
+    private String partnerId;
     private Timestamp createTime;
-    private String ticket;
-    private String requestContent;
-    private String responseContent;
+    private String transactionContent;
 
     public int getLogId() {
         return logId;
@@ -28,12 +26,12 @@ public class TransactionLog {
         this.userName = userName;
     }
 
-    public String getAppKey() {
-        return appKey;
+    public String getPartnerId() {
+        return partnerId;
     }
 
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setPartnerId(String partnerId) {
+        this.partnerId = partnerId;
     }
 
     public Timestamp getCreateTime() {
@@ -44,28 +42,12 @@ public class TransactionLog {
         this.createTime = createTime;
     }
 
-    public String getTicket() {
-        return ticket;
+    public String getTransactionContent() {
+        return transactionContent;
     }
 
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
-    }
-
-    public String getRequestContent() {
-        return requestContent;
-    }
-
-    public void setRequestContent(String requestContent) {
-        this.requestContent = requestContent;
-    }
-
-    public String getResponseContent() {
-        return responseContent;
-    }
-
-    public void setResponseContent(String responseContent) {
-        this.responseContent = responseContent;
+    public void setTransactionContent(String transactionContent) {
+        this.transactionContent = transactionContent;
     }
 
     public String getLogType() {
@@ -82,11 +64,9 @@ public class TransactionLog {
                 "logId=" + logId +
                 ", logType='" + logType + '\'' +
                 ", userName='" + userName + '\'' +
-                ", appKey='" + appKey + '\'' +
+                ", partnerId='" + partnerId + '\'' +
                 ", createTime=" + createTime +
-                ", ticket='" + ticket + '\'' +
-                ", requestContent='" + requestContent + '\'' +
-                ", responseContent='" + responseContent + '\'' +
+                ", transactionContent='" + transactionContent + '\'' +
                 '}';
     }
 }

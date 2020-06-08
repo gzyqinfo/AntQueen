@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 
 @Path("/brand")
-public class BrandListInterface {
-    private static Logger logger = LoggerFactory.getLogger(BrandListInterface.class);
+public class BrandResource {
+    private static Logger logger = LoggerFactory.getLogger(BrandResource.class);
 
     @GET
     @Path("/list")

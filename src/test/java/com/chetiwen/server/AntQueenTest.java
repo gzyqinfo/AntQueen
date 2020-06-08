@@ -46,12 +46,17 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-//        json.put("vin", "LFV3B28R2A3017140");
         json.put("vin", "LBVKY9103KSR90425");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), partnerKey));
-
+        System.out.println(json);
+        AntRequest antRequest = new AntRequest();
+        antRequest.setTs(ts);
+        antRequest.setPartnerId(partnerId);
+        antRequest.setVin("LBVKY9103KSR90425");
+        antRequest.setSign(EncryptUtil.getAntSign(antRequest, partnerKey));
+        System.out.println(antRequest);
         webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,antRequest);
         System.out.println(response.getEntity(Object.class));
         assertEquals(200, response.getStatus());
     }

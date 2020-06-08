@@ -47,8 +47,6 @@ public class CheckVinInterface {
     public Response processRequest(Object requestObject) throws Exception {
         logger.info("-------------------------------------------------------------------------------------------------------");
         logger.info("Received Check Vin request with : {}", JSONObject.toJSONString(requestObject));
-        String toSourceRequest = null;
-        String sourceResponse = null;
 
         try {
             if (restClient == null) {
@@ -61,25 +59,33 @@ public class CheckVinInterface {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
                 return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
             }
+            AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original checkVin request");
 
             AntRequest antRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             antRequest.setSign(null);
             antRequest.setPartnerId(PropertyUtil.readValue("app.key"));
             antRequest.setSign(EncryptUtil.getAntSign(antRequest, PropertyUtil.readValue("app.secret")));
 
-            toSourceRequest = antRequest.toString();
-            logger.info("Request to source with: {}", toSourceRequest);
+            logger.info("Request to source with: {}", antRequest.toString());
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), "source checkVin request");
+
             String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
             webResource = restClient.resource(url);
             ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,antRequest);
-            sourceResponse = response.getEntity(Object.class).toString();
+
+            String sourceResponse = response.getEntity(Object.class).toString();
             logger.info("Got response: {}", sourceResponse);
+
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, sourceResponse, "source checkVin response");
+            logger.info("return OK");
             return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(sourceResponse)).build();
         } catch (Exception e) {
             logger.error("Error while storing data. {}/ {}", e.getMessage(), e.getCause());
             return null;
         }
     }
+
 
 
 
