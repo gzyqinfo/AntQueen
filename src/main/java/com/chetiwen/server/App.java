@@ -46,6 +46,7 @@ public class App {
             GetOrderCache.getInstance();
             BrandCache.getInstance();
             UserRateCache.getInstance();
+            VinBrandCache.getInstance();
         } catch (DBAccessException e) {
             e.printStackTrace();
             logger.error("Error while init system cache , {}", e.getMessage());

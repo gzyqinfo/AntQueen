@@ -28,8 +28,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 @Path("/api")
@@ -60,6 +58,8 @@ public class SaveOrderInterface {
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original saveOrder request");
+
+
 
             if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
                 JSONObject response = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
@@ -144,20 +144,10 @@ public class SaveOrderInterface {
                     Order saveOrder = new Order();
                     saveOrder.setVin(originalRequest.getVin());
                     JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(antResponse.get("data")));
-
                     saveOrder.setOrderNo(data.get("orderId").toString());
-
                     saveOrder.setResponseContent(antResponse.toJSONString());
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
-                    //change orderId to orderNo;
-                    JSONObject resetResponse = JSONObject.parseObject(antResponse.toJSONString());
-                    JSONObject resetData = JSONObject.parseObject(JSONObject.toJSONString(resetResponse.get("data")));
-                    resetData.remove("orderId");
-                    resetData.put("orderNo", saveOrder.getOrderNo());
-                    resetResponse.put("data", resetData);
-
-                    antResponse = resetResponse;
                     //debit
 //                    float debitFee = getDebitFee(clientRequest, DEFAULT_FEE, carResponse);
 //
@@ -191,7 +181,7 @@ public class SaveOrderInterface {
 
     private String generateOrderNo(int oldNo) {
         int ts = (int)(System.currentTimeMillis()/1000);
-        int seed = ts - 1000000000;
+        int seed = ts - 1100000000;
         return String.valueOf(seed+oldNo);
     }
 

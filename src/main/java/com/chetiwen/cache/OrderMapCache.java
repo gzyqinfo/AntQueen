@@ -63,6 +63,4 @@ public class OrderMapCache {
         idMap.put(orderMap.getReplaceOrderNo(), orderMap);
     }
 
-
-
 }

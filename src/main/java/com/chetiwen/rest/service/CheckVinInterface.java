@@ -40,6 +40,12 @@ public class CheckVinInterface {
     private static Client restClient;
     private static WebResource webResource;
 
+    static {
+        ClientConfig config = new DefaultClientConfig();
+        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+        restClient = Client.create(config);
+    }
+
     @POST
     @Path("/checkVin")
     @Consumes("application/json")
@@ -49,11 +55,11 @@ public class CheckVinInterface {
         logger.info("Received Check Vin request with : {}", JSONObject.toJSONString(requestObject));
 
         try {
-            if (restClient == null) {
-                ClientConfig config = new DefaultClientConfig();
-                config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-                restClient = Client.create(config);
-            }
+//            if (restClient == null) {
+//                ClientConfig config = new DefaultClientConfig();
+//                config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+//                restClient = Client.create(config);
+//            }
 
             if (!Authentication.authenticateMD5Sign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
