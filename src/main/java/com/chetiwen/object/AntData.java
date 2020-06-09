@@ -8,6 +8,7 @@ public class AntData {
     private int brandId;
     private String brandName;
     private String price;
+    private int orderId;
 
     public int getIsEngine() {
         return isEngine;
@@ -48,6 +49,15 @@ public class AntData {
     public void setPrice(String price) {
         this.price = price;
     }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
 
     @Override
     public String toString() {

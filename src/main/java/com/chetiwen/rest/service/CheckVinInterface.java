@@ -44,8 +44,8 @@ public class CheckVinInterface {
     @Path("/checkVin")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
-    public Response processRequest(Object requestObject) throws Exception {
-        logger.info("-------------------------------------------------------------------------------------------------------");
+    public Response processRequest(Object requestObject) {
+        logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Check Vin request with : {}", JSONObject.toJSONString(requestObject));
 
         try {
@@ -81,8 +81,11 @@ public class CheckVinInterface {
             logger.info("return OK");
             return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(sourceResponse)).build();
         } catch (Exception e) {
-            logger.error("Error while storing data. {}/ {}", e.getMessage(), e.getCause());
-            return null;
+            logger.error("Error: {}",e.getMessage());
+            AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
+        } finally {
+            logger.info("===============================================================================================");
         }
     }
 

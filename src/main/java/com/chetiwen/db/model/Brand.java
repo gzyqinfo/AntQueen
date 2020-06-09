@@ -5,6 +5,8 @@ public class Brand {
     private String brandName;
     private float price;
     private String isSpecial;
+    private String pingyinName;
+    private String isEngine;
 
     public String getBrandId() {
         return brandId;
@@ -38,6 +40,22 @@ public class Brand {
         this.isSpecial = isSpecial;
     }
 
+    public String getPingyinName() {
+        return pingyinName;
+    }
+
+    public void setPingyinName(String pingyinName) {
+        this.pingyinName = pingyinName;
+    }
+
+    public String getIsEngine() {
+        return isEngine;
+    }
+
+    public void setIsEngine(String isEngine) {
+        this.isEngine = isEngine;
+    }
+
     @Override
     public String toString() {
         return "Brand{" +
@@ -45,6 +63,8 @@ public class Brand {
                 ", brandName='" + brandName + '\'' +
                 ", price=" + price +
                 ", isSpecial='" + isSpecial + '\'' +
+                ", pingyinName='" + pingyinName + '\'' +
+                ", isEngine=" + isEngine +
                 '}';
     }
 }

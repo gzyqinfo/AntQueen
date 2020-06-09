@@ -3,6 +3,8 @@ package com.chetiwen.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.db.accesser.BrandAccessor;
+import com.chetiwen.db.model.Brand;
 import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.PackBody;
 
@@ -75,23 +77,6 @@ public class EncryptUtil {
         }
         return result;
     }
-
-
-
-    public static void main(String[] args) throws Exception {
-        JSONObject json = new JSONObject();
-        json.fluentPut("version", 1);
-        json.fluentPut("timestamp", 1521616563);
-        json.fluentPut("ticket", "bc045d92-51be-43a1-8810-20c5d7d5254e");
-        json.fluentPut("appKey", "pFXf1cxdZGEyiCYV");
-        json.fluentPut("appSecret", "DThsKpk0EPlljHOajLMWYu3mbRit6gDp");
-        JSONObject body = new JSONObject();
-        body.fluentPut("vin", "JTEES42A882102414");
-        json.fluentPut("body", body);
-//        System.out.println(EncryptUtil.getSignString(JSONObject.parseObject(json.toJSONString(), PackBody.class)));
-    }
-
-
 
 
     public static String getAntSign(Object packBody, String partnerKey) throws Exception{

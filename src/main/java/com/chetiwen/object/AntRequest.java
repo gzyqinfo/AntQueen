@@ -1,7 +1,6 @@
 package com.chetiwen.object;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
 
 public class AntRequest {
     private String partnerId;
@@ -9,6 +8,11 @@ public class AntRequest {
     private String sign;
     private String vin;
     private int specialBrand;
+    private String callbackUrl;
+    private String engineNum;
+    private String licensePlate;
+    private String channelId;
+    private int isDetailReport;
 
     public String getPartnerId() {
         return partnerId;
@@ -50,6 +54,45 @@ public class AntRequest {
         this.specialBrand = specialBrand;
     }
 
+    public String getCallbackUrl() {
+        return callbackUrl;
+    }
+
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
+
+    public String getEngineNum() {
+        return engineNum;
+    }
+
+    public void setEngineNum(String engineNum) {
+        this.engineNum = engineNum;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public int getIsDetailReport() {
+        return isDetailReport;
+    }
+
+    public void setIsDetailReport(int isDetailReport) {
+        this.isDetailReport = isDetailReport;
+    }
 
     @Override
     public String toString() {

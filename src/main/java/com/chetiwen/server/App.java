@@ -41,9 +41,9 @@ public class App {
 
         try {
             UserCache.getInstance();
-//            SaveOrderCache.getInstance();
-//            OrderMapCache.getInstance();
-//            GetOrderCache.getInstance();
+            SaveOrderCache.getInstance();
+            OrderMapCache.getInstance();
+            GetOrderCache.getInstance();
             BrandCache.getInstance();
             UserRateCache.getInstance();
         } catch (DBAccessException e) {
