@@ -35,7 +35,7 @@ public class App {
         String restUri = restHostName+String.valueOf(restPort)+restServiceRootPath;
         JettyHttpContainerFactory.createServer(URI.create(restUri), new RestApplication());
         logger.info("RESTful Server started at : " + restUri);
-        logger.info("MyConnection started...");
+        logger.info("AntQueen started...");
 
         //Cache init
 
@@ -47,6 +47,7 @@ public class App {
             BrandCache.getInstance();
             UserRateCache.getInstance();
             VinBrandCache.getInstance();
+            DebitLogCache.getInstance();
         } catch (DBAccessException e) {
             e.printStackTrace();
             logger.error("Error while init system cache , {}", e.getMessage());

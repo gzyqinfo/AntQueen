@@ -40,7 +40,7 @@ public class UserRateAccessor {
             while(rs.next()){
                 UserRate userRate = new UserRate();
                 userRate.setPartnerId(rs.getString("partner_id"));
-                userRate.setBrandId(rs.getInt("brand_id"));
+                userRate.setBrandId(rs.getString("brand_id"));
                 userRate.setBrandName(rs.getString("brand_name"));
                 userRate.setPrice(rs.getFloat("price"));
 
@@ -63,7 +63,7 @@ public class UserRateAccessor {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, userRate.getPartnerId());
-            preparedStatement.setInt(2, userRate.getBrandId());
+            preparedStatement.setString(2, userRate.getBrandId());
             preparedStatement.setString(3, userRate.getBrandName());
             preparedStatement.setFloat(4, userRate.getPrice());
             preparedStatement.executeUpdate();

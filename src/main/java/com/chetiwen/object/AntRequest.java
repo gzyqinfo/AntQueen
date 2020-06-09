@@ -13,6 +13,7 @@ public class AntRequest {
     private String licensePlate;
     private String channelId;
     private int isDetailReport;
+    private String orderId;
 
     public String getPartnerId() {
         return partnerId;
@@ -92,6 +93,14 @@ public class AntRequest {
 
     public void setIsDetailReport(int isDetailReport) {
         this.isDetailReport = isDetailReport;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     @Override

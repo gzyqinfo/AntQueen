@@ -7,8 +7,7 @@ public class DebitLog {
     private Timestamp createTime;
     private String orderNo;
     private String vin;
-    private String userName;
-    private String appKey;
+    private String partnerId;
     private String brandId;
     private String brandName;
     private float balanceBeforeDebit;
@@ -39,20 +38,12 @@ public class DebitLog {
         this.orderNo = orderNo;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getPartnerId() {
+        return partnerId;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getAppKey() {
-        return appKey;
-    }
-
-    public void setAppKey(String appKey) {
-        this.appKey = appKey;
+    public void setPartnerId(String partnerId) {
+        this.partnerId = partnerId;
     }
 
     public String getBrandId() {
@@ -102,8 +93,7 @@ public class DebitLog {
                 ", createTime=" + createTime +
                 ", orderNo='" + orderNo + '\'' +
                 ", vin='" + vin + '\'' +
-                ", userName='" + userName + '\'' +
-                ", appKey='" + appKey + '\'' +
+                ", partnerId='" + partnerId + '\'' +
                 ", brandId='" + brandId + '\'' +
                 ", brandName='" + brandName + '\'' +
                 ", balanceBeforeDebit=" + balanceBeforeDebit +

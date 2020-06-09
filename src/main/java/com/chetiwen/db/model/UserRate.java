@@ -3,7 +3,7 @@ package com.chetiwen.db.model;
 public class UserRate {
     private String partnerId;
     private float price;
-    private int brandId;
+    private String brandId;
     private String brandName;
 
     public String getPartnerId() {
@@ -22,11 +22,11 @@ public class UserRate {
         this.price = price;
     }
 
-    public int getBrandId() {
+    public String getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(int brandId) {
+    public void setBrandId(String brandId) {
         this.brandId = brandId;
     }
 

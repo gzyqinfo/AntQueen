@@ -69,12 +69,7 @@ public class AntQueenTest {
         json.put("vin", "LBVKY9103KSR90425");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
         System.out.println(json);
-//        AntRequest antRequest = new AntRequest();
-//        antRequest.setTs(ts);
-//        antRequest.setPartnerId(partnerId);
-//        antRequest.setVin("LBVKY9103KSR90425");
-//        antRequest.setSign(EncryptUtil.getAntSign(antRequest, myPartnerKey));
-//        System.out.println(antRequest);
+
         webResource = restClient.resource(url);
         ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
         System.out.println(response.getEntity(Object.class));
@@ -91,9 +86,9 @@ public class AntQueenTest {
         json.put("ts", ts);
         json.put("partnerId", partnerId);
         json.put("vin", "LBVKY9103KSR90425");
-        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/callback/order/get", "utf-8"));
+//        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/callback/order/get", "utf-8"));
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), partnerKey));
-        json.put("callbackUrl", ("http://39.100.117.169:8139/callback/order/get"));
+//        json.put("callbackUrl", ("http://39.100.117.169:8139/callback/order/get"));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
@@ -129,7 +124,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("orderId", "1464534047");
+        json.put("orderId", 1464534041);
 
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
 
@@ -140,61 +135,59 @@ public class AntQueenTest {
         System.out.println(response.getEntity(Object.class));
         assertEquals(200, response.getStatus());
     }
-//
-//    @Test
-//    public void testGetBalance() throws Exception {
-//        String url = urlPrefix+"/api/getBalance";
-//
-//        JSONObject json = new JSONObject();
-//        int ts = (int)(System.currentTimeMillis()/1000);
-//        json.put("ts", ts);
-//        json.put("partnerId", partnerId);
-////        json.put("vin", "LSVXJ25L8H2029141");
-//
-//        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
-//        System.out.println(json.toJSONString());
-//
-//        webResource = restClient.resource(url);
-//        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-//        System.out.println(response.getEntity(Object.class));
-//        assertEquals(200, response.getStatus());
-//    }
-//
-//    @Test
-//    public void testGetChannelList() throws Exception {
-//        String url = urlPrefix+"/api/getChannelList";
-//
-//        JSONObject json = new JSONObject();
-//        int ts = (int)(System.currentTimeMillis()/1000);
-//        json.put("ts", ts);
-//        json.put("partnerId", partnerId);
-//        json.put("vin", "LBVKY9103KSR90425");
-//
-//        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
-//        System.out.println(json.toJSONString());
-//
-//        webResource = restClient.resource(url);
-//        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-//        System.out.println(response.getEntity(Object.class));
-//        assertEquals(200, response.getStatus());
-//    }
-//
-//    @Test
-//    public void testReportDetectData() throws Exception {
-//        String url = urlPrefix+"/api/getReportDetectData";
-//
-//        JSONObject json = new JSONObject();
-//        int ts = (int)(System.currentTimeMillis()/1000);
-//        json.put("ts", ts);
-//        json.put("partnerId", partnerId);
-//        json.put("orderId", "1464534047");
-//
-//        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
-//        System.out.println(json.toJSONString());
-//
-//        webResource = restClient.resource(url);
-//        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-//        System.out.println(response.getEntity(Object.class));
-//        assertEquals(200, response.getStatus());
-//    }
+
+    @Test
+    public void testGetBalance() throws Exception {
+        String url = urlPrefix+"/api/getBalance";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", partnerId);
+        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testGetChannelList() throws Exception {
+        String url = urlPrefix+"/api/getChannelList";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", partnerId);
+        json.put("vin", "LBVKY9103KSR90425");
+
+        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testReportDetectData() throws Exception {
+        String url = urlPrefix+"/api/getReportDetectData";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", partnerId);
+        json.put("orderId", "1464534047");
+
+        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
 }

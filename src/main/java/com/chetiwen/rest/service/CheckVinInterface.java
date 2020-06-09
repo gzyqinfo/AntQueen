@@ -55,11 +55,6 @@ public class CheckVinInterface {
         logger.info("Received Check Vin request with : {}", JSONObject.toJSONString(requestObject));
 
         try {
-//            if (restClient == null) {
-//                ClientConfig config = new DefaultClientConfig();
-//                config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-//                restClient = Client.create(config);
-//            }
 
             if (!Authentication.authenticateMD5Sign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
@@ -91,7 +86,7 @@ public class CheckVinInterface {
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
-            logger.info("===============================================================================================");
+            logger.info("===================================================================================================");
         }
     }
 

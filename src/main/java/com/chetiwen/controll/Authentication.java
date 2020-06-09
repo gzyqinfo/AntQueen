@@ -5,13 +5,7 @@ import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.model.User;
 import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
-import com.chetiwen.object.CarResponse;
-import com.chetiwen.util.AntPack;
 import com.chetiwen.util.EncryptUtil;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,13 +116,6 @@ public class Authentication {
         return false;
     }
 
-    public static CarResponse genCarResponse(String code, String msg, Logger logger) {
-        CarResponse response = new CarResponse();
-        response.setCode(code);
-        response.setMsg(msg);
-        logger.info("return {}, {}", code, msg);
-        return response;
-    }
 
     public static AntResponse genAntResponse(int code, String msg, Logger logger) {
         AntResponse response = new AntResponse();

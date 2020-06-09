@@ -3,23 +3,13 @@ package com.chetiwen.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.chetiwen.db.accesser.BrandAccessor;
-import com.chetiwen.db.model.Brand;
-import com.chetiwen.object.AntRequest;
-import com.chetiwen.object.PackBody;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Map;
 
-/**
- * @version 1.0
- * @author: zwg.BlueOcean
- * @date 2018/3/1 18:02
- * @description
- */
+
 public class EncryptUtil {
 
     /**

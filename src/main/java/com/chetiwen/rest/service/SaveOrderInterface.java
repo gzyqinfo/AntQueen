@@ -1,13 +1,13 @@
 package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.chetiwen.cache.OrderMapCache;
-import com.chetiwen.cache.SaveOrderCache;
+import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.ConnectionPool;
+import com.chetiwen.db.DBAccessException;
+import com.chetiwen.db.accesser.DebitLogAccessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
-import com.chetiwen.db.model.Order;
-import com.chetiwen.db.model.OrderMap;
+import com.chetiwen.db.model.*;
 import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
 import com.chetiwen.util.EncryptUtil;
@@ -35,6 +35,13 @@ public class SaveOrderInterface {
     private static Logger logger = LoggerFactory.getLogger(SaveOrderInterface.class);
     private static Client restClient;
     private static WebResource webResource;
+    private final float DEFAULT_FEE = 4.5f;
+
+    static {
+        ClientConfig config = new DefaultClientConfig();
+        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+        restClient = Client.create(config);
+    }
 
     @POST
     @Path("/saveOrder")
@@ -45,12 +52,6 @@ public class SaveOrderInterface {
         logger.info("Received Save Order request with : {}", JSONObject.toJSONString(requestObject));
 
         try {
-            if (restClient == null) {
-                ClientConfig config = new DefaultClientConfig();
-                config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-                restClient = Client.create(config);
-            }
-
             if (!Authentication.jsonSign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
                 return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
@@ -59,71 +60,57 @@ public class SaveOrderInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original saveOrder request");
 
-
+            if (!canQueryVin(requestObject)) {
+                AntResponse response = Authentication.genAntResponse(1101, "数据维护中", logger);
+                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+            }
 
             if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
-                JSONObject response = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
-
-                JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(response.get("data")));
+                //get cache and reset orderId
+                JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
+                JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
                 String orderNo = data.get("orderId").toString();
                 String replaceOrderNo = generateOrderNo(Integer.parseInt(orderNo));
                 OrderMap orderMap = new OrderMap();
                 orderMap.setReplaceOrderNo(replaceOrderNo);
                 orderMap.setOrderNo(orderNo);
                 OrderMapCache.getInstance().addOrderMap(orderMap);
-
                 data.put("orderId", replaceOrderNo);
-                response.put("data", data);
+                cacheResponse.put("data", data);
 
                 logger.info("got from saveCache for vin: {}", originalRequest.getVin());
 
-//                //debit
-//                float balanceBeforeDebit = UserCache.getInstance().getByKey(clientRequest.getAppKey()).getBalance();
-//
-//                float debitFee = getDebitFee(clientRequest, DEFAULT_FEE, response);
-//
-//                if (balanceBeforeDebit - debitFee < 0.00000001) {
-//                    CarResponse badResponse = new CarResponse();
-//                    badResponse.setCode("400015");
-//                    badResponse.setMsg("余额不足，请充值!!");
-//                    logger.info("return 400015, 余额不足，请充值!!");
-//                    return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
-//                }
-//                debit(clientRequest, response, balanceBeforeDebit, debitFee);
-//
+                //debit
+                float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
+
+                float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
+
+                if (balanceBeforeDebit - debitFee < 0.00000001) {
+                    AntResponse response = Authentication.genAntResponse(1002, "账户余额不足", logger);
+                    return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                }
+                debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee);
+
 //                if (Authentication.authenticateCallBackUrl(clientRequest.getBody().getCallBackUrl())) {
 //                    clientRequest.getBody().setOrderNo(replaceOrderNo);
 //                    callBack(clientRequest);
 //
 //                }
-                logger.info("Return OK. {}", response.toJSONString());
-                return Response.status(Response.Status.OK).entity(response).build();
+                logger.info("Return OK. {}", cacheResponse.toJSONString());
+                return Response.status(Response.Status.OK).entity(cacheResponse).build();
 //
             } else {
-//                //debit
-//                float balanceBeforeDebit = UserCache.getInstance().getByKey(clientRequest.getAppKey()).getBalance();
-//
-//                if (balanceBeforeDebit - DEFAULT_FEE < 0.00000001) {
-//                    CarResponse badResponse = new CarResponse();
-//                    badResponse.setCode("400015");
-//                    badResponse.setMsg("余额不足，请充值!!");
-//                    logger.info("return 400015, 余额不足，请充值!!");
-//                    return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
-//                }
-//
+
                 JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
                 jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
-
 //                if (ConnectionPool.isProduction) {
 //                    jsonRequest.put("callBackUrl", PropertyUtil.readValue("call.back.url.production"));
 //                } else {
 //                    jsonRequest.put("callBackUrl", PropertyUtil.readValue("call.back.url"));
 //                }
-
                 jsonRequest.remove("sign");
                 jsonRequest.put("sign", EncryptUtil.getAntSign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-
 
                 logger.info("Request to source with: {}", jsonRequest.toString());
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
@@ -134,7 +121,6 @@ public class SaveOrderInterface {
                 JSONObject antResponse = response.getEntity(JSONObject.class);
 
                 logger.info("get ant response: {}", antResponse.toJSONString());
-
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source saveOrder response");
 
                 if ("0".equals(antResponse.get("code").toString())) {
@@ -149,17 +135,15 @@ public class SaveOrderInterface {
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
                     //debit
-//                    float debitFee = getDebitFee(clientRequest, DEFAULT_FEE, carResponse);
-//
-//                    if (balanceBeforeDebit - debitFee < 0.00000001) {
-//                        CarResponse badResponse = new CarResponse();
-//                        badResponse.setCode("400015");
-//                        badResponse.setMsg("余额不足，请充值!!");
-//                        logger.info("return 400015, 余额不足，请充值!!");
-//                        return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
-//                    }
-//                    debit(clientRequest, carResponse, balanceBeforeDebit, debitFee);
-//
+                    float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
+                    float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
+
+                    if (balanceBeforeDebit - debitFee < 0.00000001) {
+                        AntResponse badResponse = Authentication.genAntResponse(1002, "账户余额不足", logger);
+                        return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(badResponse)).build();
+                    }
+                    debit(originalRequest, saveOrder.getOrderNo(), balanceBeforeDebit, debitFee);
+
 //                    if (Authentication.authenticateCallBackUrl(clientRequest.getBody().getCallBackUrl())) {
 //                        Thread.sleep(8000);
 //                        callBack(clientRequest);
@@ -179,11 +163,85 @@ public class SaveOrderInterface {
         }
     }
 
+    private float getDebitFee(String partnerId, String vin) throws DBAccessException {
+        float debitFee = 0f;
+
+        VinBrand vinBrand = VinBrandCache.getInstance().getByKey(vin);
+        if (vinBrand != null) {
+            String brandId = vinBrand.getBrandId();
+            if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+brandId)) {
+                debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+brandId).getPrice();
+            } else if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")) {
+                debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+"0").getPrice();
+            } else if (BrandCache.getInstance().getById(brandId) != null) {
+                debitFee = BrandCache.getInstance().getById(brandId).getPrice();
+            }
+        }
+
+        //当找不到计费规则或出现0计费时
+        if (debitFee - 0 < 0.00000001) {
+            debitFee = DEFAULT_FEE;
+        }
+        return debitFee;
+    }
+
+    private void debit(AntRequest request, String orderId, float balanceBeforeDebit, float debitFee) throws DBAccessException {
+        DebitLog debitLog = new DebitLog();
+        debitLog.setPartnerId(request.getPartnerId());
+        debitLog.setBalanceBeforeDebit(balanceBeforeDebit);
+        debitLog.setDebitFee(debitFee);
+        debitLog.setOrderNo(orderId);
+        debitLog.setVin(request.getVin());
+        VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
+        if (vinBrand!=null) {
+            debitLog.setBrandId(vinBrand.getBrandId());
+            debitLog.setBrandName(vinBrand.getBrandName());
+        }
+        DebitLogAccessor.getInstance().addLog(debitLog);
+
+        User updatedUser = UserCache.getInstance().getByKey(request.getPartnerId());
+        updatedUser.setBalance(balanceBeforeDebit - debitFee);
+        UserCache.getInstance().updateUser(updatedUser);
+    }
+
+    private boolean canQueryVin(Object requestObject) throws Exception {
+        AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
+        if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
+            return true;
+        } else {
+            originalRequest.setSign(null);
+            originalRequest.setPartnerId(PropertyUtil.readValue("app.key"));
+            originalRequest.setSign(EncryptUtil.getAntSign(originalRequest, PropertyUtil.readValue("app.secret")));
+
+            logger.info("Request to source with: {}", originalRequest.toString());
+            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), originalRequest.toString(), "source checkVin request");
+
+            String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
+            webResource = restClient.resource(url);
+            ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, originalRequest);
+
+            AntResponse sourceResponse = response.getEntity(AntResponse.class);
+            logger.info("Got response: {}", sourceResponse);
+            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), sourceResponse.toString(), "source checkVin response");
+
+            if (sourceResponse.getCode() == 1106) {
+                if (VinBrandCache.getInstance().getByKey(originalRequest.getVin()) == null) {
+                    VinBrand vinBrand = new VinBrand();
+                    vinBrand.setVin(originalRequest.getVin());
+                    vinBrand.setBrandId(String.valueOf(sourceResponse.getData().getBrandId()));
+                    vinBrand.setBrandName(sourceResponse.getData().getBrandName());
+                    VinBrandCache.getInstance().addVinBrand(vinBrand);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String generateOrderNo(int oldNo) {
         int ts = (int)(System.currentTimeMillis()/1000);
         int seed = ts - 1100000000;
         return String.valueOf(seed+oldNo);
     }
-
 
 }
