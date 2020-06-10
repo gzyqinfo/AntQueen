@@ -7,8 +7,6 @@ public class User {
     private String partnerId;
     private String partnerKey;
     private float balance;
-    private Date createDate;
-    private Date expireDate;
     private int isValid;
 
     public String getUserName() {
@@ -43,22 +41,6 @@ public class User {
         this.balance = balance;
     }
 
-    public Date getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
-
-    public Date getExpireDate() {
-        return expireDate;
-    }
-
-    public void setExpireDate(Date expireDate) {
-        this.expireDate = expireDate;
-    }
-
     public int getIsValid() {
         return isValid;
     }
@@ -74,8 +56,6 @@ public class User {
                 ", partnerId='" + partnerId + '\'' +
                 ", partnerKey='" + partnerKey + '\'' +
                 ", balance=" + balance +
-                ", createDate=" + createDate +
-                ", expireDate=" + expireDate +
                 ", isValid=" + isValid +
                 '}';
     }

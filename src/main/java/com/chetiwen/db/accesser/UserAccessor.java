@@ -38,11 +38,9 @@ public class UserAccessor {
                 User user = new User();
                 user.setPartnerId(rs.getString("partner_id"));
                 user.setBalance(rs.getFloat("balance"));
-                user.setCreateDate(rs.getDate("create_date"));
                 user.setPartnerKey(rs.getString("partner_key"));
                 user.setUserName(rs.getString("user_name"));
                 user.setIsValid(rs.getInt("is_valid"));
-                user.setExpireDate(rs.getDate("expire_date"));
 
                 list.add(user);
             }
