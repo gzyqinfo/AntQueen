@@ -54,7 +54,7 @@ public class SaveOrderInterface {
         try {
             if (!Authentication.jsonSign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
-                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
@@ -62,7 +62,7 @@ public class SaveOrderInterface {
 
             if (!canQueryVin(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1101, "数据维护中", logger);
-                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
             if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
@@ -87,7 +87,7 @@ public class SaveOrderInterface {
 
                 if (balanceBeforeDebit - debitFee < 0.00000001) {
                     AntResponse response = Authentication.genAntResponse(1002, "账户余额不足", logger);
-                    return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                    return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
                 }
                 debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee);
 
@@ -140,7 +140,7 @@ public class SaveOrderInterface {
 
                     if (balanceBeforeDebit - debitFee < 0.00000001) {
                         AntResponse badResponse = Authentication.genAntResponse(1002, "账户余额不足", logger);
-                        return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(badResponse)).build();
+                        return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
                     }
                     debit(originalRequest, saveOrder.getOrderNo(), balanceBeforeDebit, debitFee);
 

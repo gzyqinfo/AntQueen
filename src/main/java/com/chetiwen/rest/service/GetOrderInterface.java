@@ -49,7 +49,7 @@ public class GetOrderInterface {
         try {
             if (!Authentication.jsonSign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
-                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
@@ -63,7 +63,7 @@ public class GetOrderInterface {
 
             if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
                 AntResponse response = Authentication.genAntResponse(1200, "订单处理异常", logger);
-                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
             if (GetOrderCache.getInstance().getGetOrderMap().containsKey(sourceOrderNo)) {

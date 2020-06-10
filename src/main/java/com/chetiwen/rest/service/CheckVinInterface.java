@@ -58,7 +58,7 @@ public class CheckVinInterface {
 
             if (!Authentication.authenticateMD5Sign(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
-                return Response.status(Response.Status.BAD_REQUEST).entity(JSONObject.toJSONString(response)).build();
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original checkVin request");
