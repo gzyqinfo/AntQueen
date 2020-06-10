@@ -50,13 +50,6 @@ public class UserRateCache {
         return keyMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (keyMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addUserRate(UserRate userRate) throws DBAccessException {
         logger.info("add into userRate cache: {}", userRate);
 

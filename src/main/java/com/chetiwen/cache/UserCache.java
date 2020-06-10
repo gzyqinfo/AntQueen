@@ -57,13 +57,6 @@ public class UserCache {
         return idMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addUser(User user) throws DBAccessException {
         logger.info("add into user cache: {}", user);
 

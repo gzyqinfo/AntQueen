@@ -56,12 +56,4 @@ public class BrandCache {
         return idMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
-            reload();
-        }
-    }
-
-
-
 }

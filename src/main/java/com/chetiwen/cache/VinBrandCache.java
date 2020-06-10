@@ -49,13 +49,6 @@ public class VinBrandCache {
         return idMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addVinBrand(VinBrand vinBrand) throws DBAccessException {
         logger.info("add into VinBrand cache: {}", vinBrand);
 

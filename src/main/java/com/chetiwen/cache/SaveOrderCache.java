@@ -49,13 +49,6 @@ public class SaveOrderCache {
         return vinMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (vinMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addSaveOrder(Order saveOrder) throws DBAccessException {
         logger.info("add into SaveOrder cache: {}", saveOrder);
 

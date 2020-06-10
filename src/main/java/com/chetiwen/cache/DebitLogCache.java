@@ -50,13 +50,6 @@ public class DebitLogCache {
         return keyMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (keyMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addDebitLog(DebitLog debitLog) throws DBAccessException {
         logger.info("add into debitLog cache: {}", debitLog);
 

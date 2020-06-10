@@ -49,13 +49,6 @@ public class GetOrderCache {
         return idMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addGetOrder(Order getOrder) throws DBAccessException {
         logger.info("add into GetOrder cache: {}", getOrder);
 

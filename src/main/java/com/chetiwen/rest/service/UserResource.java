@@ -32,8 +32,6 @@ public class UserResource {
     public Response listAll() {
         logger.info("Received User list request ");
         try {
-            UserCache.getInstance().refreshCache();
-
             List<User> dataList = UserCache.getInstance().getUserMap().values()
                     .stream().collect(Collectors.toList());
 
@@ -52,7 +50,6 @@ public class UserResource {
         logger.info("Received User request with partnerId {} ", partnerId);
         User user;
         try {
-            UserCache.getInstance().refreshCache();
             user = UserCache.getInstance().getByKey(partnerId)==null?UserCache.getInstance().getByName(partnerId):UserCache.getInstance().getByKey(partnerId);
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No such user!").build();

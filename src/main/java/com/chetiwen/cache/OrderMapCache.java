@@ -49,13 +49,6 @@ public class OrderMapCache {
         return idMap;
     }
 
-    public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
-            reload();
-        }
-    }
-
-
     public void addOrderMap(OrderMap orderMap) throws DBAccessException {
         logger.info("add into OrderMap cache: {}", orderMap);
 
