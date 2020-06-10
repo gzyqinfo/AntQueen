@@ -105,8 +105,8 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-//        json.put("vin", "LBVKY9103KSR90425");
-        json.put("vin", "WBACR6102L9D22000");
+        json.put("vin", "LBVKY9103KSR90425");
+//        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -124,7 +124,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("orderId", 1464596781);
+        json.put("orderId", 1464605749);
 
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
 
@@ -135,6 +135,27 @@ public class AntQueenTest {
         System.out.println(response.getEntity(Object.class));
         assertEquals(200, response.getStatus());
     }
+
+    @Test
+    public void testMyGetOrder() throws Exception {
+        String url = myUrlPrefix+"/api/getOrder";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", myPartnerId);
+        json.put("orderId", 1464605777);
+
+        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
+
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
+
 
     @Test
     public void testGetBalance() throws Exception {

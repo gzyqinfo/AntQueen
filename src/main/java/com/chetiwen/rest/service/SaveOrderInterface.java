@@ -197,7 +197,7 @@ public class SaveOrderInterface {
             debitLog.setBrandId(vinBrand.getBrandId());
             debitLog.setBrandName(vinBrand.getBrandName());
         }
-        DebitLogAccessor.getInstance().addLog(debitLog);
+        DebitLogCache.getInstance().addDebitLog(debitLog);
 
         User updatedUser = UserCache.getInstance().getByKey(request.getPartnerId());
         updatedUser.setBalance(balanceBeforeDebit - debitFee);

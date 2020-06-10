@@ -39,7 +39,7 @@ public class GetOrderInterface {
     }
 
     @POST
-    @Path("/order/getOrder")
+    @Path("/getOrder")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
     public Response processRequest(Object requestObject) throws Exception {
@@ -62,7 +62,8 @@ public class GetOrderInterface {
             }
 
             if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
-                AntResponse response = Authentication.genAntResponse(1200, "订单处理异常", logger);
+                logger.info("No debit record for {} with order : {}", originalRequest.getPartnerId(), sourceOrderNo);
+                AntResponse response = Authentication.genAntResponse(1200, "无效订单号", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
@@ -106,7 +107,7 @@ public class GetOrderInterface {
 
                 logger.info("finish processing and return ok. {}", antResponse.toJSONString());
 
-            } else {
+            } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
                 //对已收款退费，同时不再支持该订单的查询
                 String partnerId = originalRequest.getPartnerId();
                 String debitKey = partnerId+"/"+sourceOrderNo;
@@ -118,6 +119,7 @@ public class GetOrderInterface {
                 if (debitLog != null) {
                     float debitFee = debitLog.getDebitFee();
                     UserCache.getInstance().getByKey(partnerId).setBalance(UserCache.getInstance().getByKey(partnerId).getBalance()+debitFee);
+                    UserCache.getInstance().updateUser(UserCache.getInstance().getByKey(partnerId));
                     logger.info("Add debitFee :{} back to user {}'s balance", debitFee, partnerId);
 
                     DebitLogCache.getInstance().delDebitLog(debitKey);
