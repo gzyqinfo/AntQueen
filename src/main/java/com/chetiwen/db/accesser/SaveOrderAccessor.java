@@ -89,4 +89,19 @@ public class SaveOrderAccessor {
         }
         logger.info("updated save_order record for vin : {}", saveOrder.getVin());
     }
+
+    public void delSaveOrder(String orderNo) throws DBAccessException {
+        logger.info("Received del saveOrder data request. orderNo: {}", orderNo);
+
+        String sql = "delete from save_order where order_no = \""+orderNo+"\"";
+
+        Connection connection = ConnectionPool.getConnection();
+        try {
+            SqlHelper.executeUpdate (connection, sql);
+            connection.close();
+        } catch (SQLException e) {
+            throw new DBAccessException(connection, e);
+        }
+        logger.info("deleted save_order record");
+    }
 }

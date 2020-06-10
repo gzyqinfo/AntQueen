@@ -65,4 +65,11 @@ public class DebitLogCache {
     }
 
 
+    public void delDebitLog(String debitKey) throws DBAccessException {
+        String partnerId = debitKey.split("/")[0];
+        String orderNo = debitKey.split("/")[1];
+
+        DebitLogAccessor.getInstance().delLog(partnerId, orderNo);
+        keyMap.remove(debitKey);
+    }
 }

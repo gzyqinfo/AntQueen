@@ -80,4 +80,18 @@ public class DebitLogAccessor {
         }
     }
 
+    public void delLog(String partnerId, String orderNo) throws DBAccessException {
+        logger.info("Received del debit log data request. key: {}/{}", partnerId, orderNo);
+
+        String sql = "delete from debit_log where partner_id = \""+partnerId+"\" and order_no = \""+orderNo+"\"";
+
+        Connection connection = ConnectionPool.getConnection();
+        try {
+            SqlHelper.executeUpdate (connection, sql);
+            connection.close();
+        } catch (SQLException e) {
+            throw new DBAccessException(connection, e);
+        }
+        logger.info("deleted debit_log record");
+    }
 }

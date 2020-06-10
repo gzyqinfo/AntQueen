@@ -85,7 +85,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "WBACR6102L9D22001");
 //        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/callback/order/get", "utf-8"));
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), partnerKey));
 //        json.put("callbackUrl", ("http://39.100.117.169:8139/callback/order/get"));
@@ -105,8 +105,8 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LBVKY9103KSR90425");
-
+//        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -124,7 +124,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("orderId", 1464534041);
+        json.put("orderId", 1464596781);
 
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), partnerKey));
 

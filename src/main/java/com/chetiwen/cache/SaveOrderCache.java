@@ -15,10 +15,10 @@ public class SaveOrderCache {
 
     private static SaveOrderCache instance;
 
-    private Map<String, Order> idMap;
+    private Map<String, Order> vinMap;
 
     private SaveOrderCache() throws DBAccessException {
-        idMap = new HashMap<>();
+        vinMap = new HashMap<>();
         reload();
     }
 
@@ -30,27 +30,27 @@ public class SaveOrderCache {
     }
 
     public void reload() throws DBAccessException {
-        idMap.clear();
+        vinMap.clear();
 
         List<Order> list = SaveOrderAccessor.getInstance().getAllSavedOrders();
 
         list.forEach(order->{
-            idMap.put(order.getVin(), order);
+            vinMap.put(order.getVin(), order);
         });
 
-        logger.info("SaveOrderCache reloaded. {} record(s) are refreshed.", idMap.size());
+        logger.info("SaveOrderCache reloaded. {} record(s) are refreshed.", vinMap.size());
     }
 
     public Order getByKey(String key) {
-        return idMap.get(key);
+        return vinMap.get(key);
     }
 
     public Map<String, Order> getSaveOrderMap() {
-        return idMap;
+        return vinMap;
     }
 
     public void refreshCache() throws DBAccessException {
-        if (idMap.size() == 0) {
+        if (vinMap.size() == 0) {
             reload();
         }
     }
@@ -60,14 +60,21 @@ public class SaveOrderCache {
         logger.info("add into SaveOrder cache: {}", saveOrder);
 
         SaveOrderAccessor.getInstance().addSaveOrder(saveOrder);
-        idMap.put(saveOrder.getVin(), saveOrder);
+        vinMap.put(saveOrder.getVin(), saveOrder);
     }
 
     public void updateSaveOrder(Order saveOrder) throws DBAccessException {
         logger.info("update saveOrder cache for user: {}/{}", saveOrder.getVin(), saveOrder);
 
         SaveOrderAccessor.getInstance().updateSaveOrder(saveOrder);
-        idMap.put(saveOrder.getVin(), saveOrder);
+        vinMap.put(saveOrder.getVin(), saveOrder);
     }
 
+    public void delSaveOrder(String orderNo)  throws DBAccessException {
+        logger.info("remove saveOrder cache for orderNo: {}", orderNo);
+
+        SaveOrderAccessor.getInstance().delSaveOrder(orderNo);
+        vinMap.values().removeIf(value -> value.getOrderNo().equals(orderNo));
+
+    }
 }
