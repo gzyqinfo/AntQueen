@@ -28,6 +28,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URLEncoder;
 
 
 @Path("/api")
@@ -104,14 +105,16 @@ public class SaveOrderInterface {
                 JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
                 jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
-//                if (ConnectionPool.isProduction) {
-//                    jsonRequest.put("callBackUrl", PropertyUtil.readValue("call.back.url.production"));
-//                } else {
-//                    jsonRequest.put("callBackUrl", PropertyUtil.readValue("call.back.url"));
-//                }
+                String notEncodedUrl;
+                if (ConnectionPool.isProduction) {
+                    notEncodedUrl = PropertyUtil.readValue("call.back.url.production");
+                } else {
+                    notEncodedUrl = PropertyUtil.readValue("call.back.url");
+                }
+                jsonRequest.put("callBackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
                 jsonRequest.remove("sign");
                 jsonRequest.put("sign", EncryptUtil.getAntSign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-
+                jsonRequest.put("callBackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
                 logger.info("Request to source with: {}", jsonRequest.toString());
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
 
