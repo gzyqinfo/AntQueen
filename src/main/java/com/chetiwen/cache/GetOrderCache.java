@@ -53,9 +53,7 @@ public class GetOrderCache {
         logger.info("add into GetOrder cache: {}", getOrder);
 
         GetOrderAccessor.getInstance().addGetOrder(getOrder);
-        idMap.put(getOrder.getVin(), getOrder);
+        idMap.put(getOrder.getOrderNo(), getOrder);
     }
-
-
 
 }

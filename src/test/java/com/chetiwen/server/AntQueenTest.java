@@ -105,8 +105,8 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LBVKY9103KSR90425");
-//        json.put("vin", "WBACR6102L9D22000");
+//        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -144,7 +144,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464605777);
+        json.put("orderId", 1464608211);
 
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
 

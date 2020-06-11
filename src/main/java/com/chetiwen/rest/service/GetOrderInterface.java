@@ -6,6 +6,7 @@ import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
+import com.chetiwen.object.AntOrderResponse;
 import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
 import com.chetiwen.util.EncryptUtil;
@@ -71,10 +72,11 @@ public class GetOrderInterface {
                 logger.info("there is cached order");
                 Order order = GetOrderCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
-
-                    logger.info("Return OK. {}", order.getResponseContent());
-                    //TODO : reset some fields
-                    return Response.status(Response.Status.OK).entity(order.getResponseContent()).build();
+                    AntOrderResponse orderResponse = JSONObject.parseObject(order.getResponseContent(), AntOrderResponse.class);
+                    orderResponse.getData().setMobilUrl(null);
+                    orderResponse.getData().setPcUrl(null); //TODO reset url
+                    logger.info("Return OK. {}", orderResponse.toString());
+                    return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
                 }
             }
 
@@ -103,10 +105,11 @@ public class GetOrderInterface {
                     GetOrderCache.getInstance().addGetOrder(getOrder);
 
                 }
-                //TODO: reset some fields for antResponse
-
-                logger.info("finish processing and return ok. {}", antResponse.toJSONString());
-
+                AntOrderResponse orderResponse = JSONObject.parseObject(antResponse.toJSONString(), AntOrderResponse.class);
+                orderResponse.getData().setMobilUrl(null);
+                orderResponse.getData().setPcUrl(null); //TODO reset url
+                logger.info("finish processing and return ok. {}", JSONObject.toJSONString(orderResponse));
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
             } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
                 //对已收款退费，同时不再支持该订单的查询
                 String partnerId = originalRequest.getPartnerId();
