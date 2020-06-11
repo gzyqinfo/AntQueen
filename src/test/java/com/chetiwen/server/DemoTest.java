@@ -39,7 +39,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "LSVCC2A42BN300952");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
         System.out.println(json);
 
@@ -58,8 +58,8 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-//        json.put("vin", "LBVKY9103KSR90425");
-        json.put("vin", "WBACR6102L9D22000");
+        json.put("vin", "LBVKY9107LSX62249");
+//        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -77,7 +77,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464608723);
+        json.put("orderId", 1464609827);
 
         json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
 
