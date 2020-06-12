@@ -96,20 +96,21 @@ public class UserResource {
     public Response postUser(User user) throws Exception {
         logger.info("Received post user data request. user: {}", user);
 
-        String partnerKey;
-        long partnerId;
-
-        do {
-            partnerId = (long)(Math.random()*900000000)+100000000;
-            partnerKey = Base64.getEncoder().encodeToString(String.valueOf(partnerId*1234).getBytes("utf-8"));
-        } while (UserCache.getInstance().getUserMap().containsKey(String.valueOf(partnerId)));
-
-        user.setPartnerId(String.valueOf(partnerId));
-        user.setPartnerKey(partnerKey);
+//        String partnerKey;
+//        long partnerId;
+//
+//        do {
+//            partnerId = (long)(Math.random()*900000000)+100000000;
+//            partnerKey = Base64.getEncoder().encodeToString(String.valueOf(partnerId*1234).getBytes("utf-8"));
+//        } while (UserCache.getInstance().getUserMap().containsKey(String.valueOf(partnerId)));
+//
+//        user.setPartnerId(String.valueOf(partnerId));
+//        user.setPartnerKey(partnerKey);
 
         UserCache.getInstance().addUser(user);
 
-        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" created successfully. Partner ID: "+partnerId+"; Partner Key: "+partnerKey +" .Balance："+user.getBalance()).build();
+//        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" created successfully. Partner ID: "+partnerId+"; Partner Key: "+partnerKey +" .Balance："+user.getBalance()).build();
+        return Response.status(Response.Status.OK).entity(user.toString()).build();
     }
 
     public static void userOperation(String urlPrefix) throws Exception {
@@ -145,6 +146,12 @@ public class UserResource {
                 System.out.print("Input User Name: ");
                 String userName = input.readLine();
                 user.setUserName(userName);
+                System.out.print("Input partner ID: ");
+                String partnerId = input.readLine();
+                user.setPartnerId(partnerId);
+                System.out.print("Input partner Key: ");
+                String partnerKey = input.readLine();
+                user.setPartnerKey(partnerKey);
                 System.out.print("Input User Balance: ");
                 float balance = Float.valueOf(input.readLine());
                 user.setBalance(balance);
@@ -152,6 +159,8 @@ public class UserResource {
 
                 System.out.println("The user to create is : ");
                 System.out.println("Name: " + userName);
+                System.out.println("Partner ID: " + partnerId);
+                System.out.println("Partner Key: " + partnerKey);
                 System.out.println("Balance: " + balance);
                 System.out.println();
                 System.out.print("Is it correct ? (Y or N):");
