@@ -3,7 +3,6 @@ package com.chetiwen.controll;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.model.User;
-import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
 import com.chetiwen.util.EncryptUtil;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class Authentication {
                 String prefix = JSONObject.toJSONString(clientRequest).substring(0, position);
                 String suffix = JSONObject.toJSONString(clientRequest).substring(position+42); // MD5 must be 32
 
-                String serverSign = EncryptUtil.getAntSign(prefix+suffix, user.getPartnerKey());
+                String serverSign = EncryptUtil.sign(prefix+suffix, user.getPartnerKey());
                 if (serverSign.toLowerCase().equals(clientSign)) {
                     return true;
                 }

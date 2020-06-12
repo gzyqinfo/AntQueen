@@ -5,7 +5,6 @@ import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
-import com.chetiwen.db.accesser.DebitLogAccessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
 import com.chetiwen.object.AntRequest;
@@ -113,7 +112,7 @@ public class SaveOrderInterface {
                 }
                 jsonRequest.put("callBackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
                 jsonRequest.remove("sign");
-                jsonRequest.put("sign", EncryptUtil.getAntSign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
+                jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
                 jsonRequest.put("callBackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
                 logger.info("Request to source with: {}", jsonRequest.toString());
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
@@ -214,7 +213,7 @@ public class SaveOrderInterface {
         } else {
             originalRequest.setSign(null);
             originalRequest.setPartnerId(PropertyUtil.readValue("app.key"));
-            originalRequest.setSign(EncryptUtil.getAntSign(originalRequest, PropertyUtil.readValue("app.secret")));
+            originalRequest.setSign(EncryptUtil.sign(originalRequest, PropertyUtil.readValue("app.secret")));
 
             logger.info("Request to source with: {}", originalRequest.toString());
             TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), originalRequest.toString(), "source checkVin request");

@@ -1,7 +1,6 @@
 package com.chetiwen.server;
 
 import com.alibaba.fastjson.JSONObject;
-import com.chetiwen.util.AntPack;
 import com.chetiwen.util.EncryptUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -39,8 +38,8 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LSVCC2A42BN300952");
-        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
+        json.put("vin", "LBVKY9107LSX62249");
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json);
 
         webResource = restClient.resource(url);
@@ -60,7 +59,7 @@ public class DemoTest {
         json.put("partnerId", myPartnerId);
         json.put("vin", "LBVKY9107LSX62249");
 //        json.put("vin", "WBACR6102L9D22000");
-        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
@@ -77,9 +76,9 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464609827);
+        json.put("orderId", 1464619841);
 
-        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 
         System.out.println(json.toJSONString());
 
@@ -97,7 +96,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
@@ -114,7 +113,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("sign", EncryptUtil.getAntSign(JSONObject.parseObject(json.toJSONString(), AntPack.class), myPartnerKey));
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);

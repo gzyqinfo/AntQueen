@@ -1,15 +1,9 @@
 package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.chetiwen.cache.BrandCache;
-import com.chetiwen.cache.OrderMapCache;
-import com.chetiwen.cache.SaveOrderCache;
-import com.chetiwen.cache.UserCache;
+import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
-import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
-import com.chetiwen.db.accesser.DebitLogAccessor;
-import com.chetiwen.db.accesser.GetOrderAccessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
 import com.chetiwen.object.*;
@@ -30,8 +24,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 @Path("/api")
@@ -66,7 +58,7 @@ public class CheckVinInterface {
             AntRequest antRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             antRequest.setSign(null);
             antRequest.setPartnerId(PropertyUtil.readValue("app.key"));
-            antRequest.setSign(EncryptUtil.getAntSign(antRequest, PropertyUtil.readValue("app.secret")));
+            antRequest.setSign(EncryptUtil.sign(antRequest, PropertyUtil.readValue("app.secret")));
 
             logger.info("Request to source with: {}", antRequest.toString());
             TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), "source checkVin request");
@@ -75,12 +67,14 @@ public class CheckVinInterface {
             webResource = restClient.resource(url);
             ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,antRequest);
 
-            String sourceResponse = response.getEntity(Object.class).toString();
-            logger.info("Got response: {}", sourceResponse);
+            JSONObject sourceResponse = response.getEntity(JSONObject.class);
+            logger.info("Got response: {}", sourceResponse.toJSONString());
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, sourceResponse.toJSONString(), "source checkVin response");
 
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, sourceResponse, "source checkVin response");
-            logger.info("return OK");
-            return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(sourceResponse)).build();
+            overwriteBrandPrice(originalRequest, sourceResponse);
+
+            logger.info("return {}", sourceResponse);
+            return Response.status(Response.Status.OK).entity(sourceResponse.toJSONString()).build();
         } catch (Exception e) {
             logger.error("Error: {}",e.getMessage());
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
@@ -90,7 +84,27 @@ public class CheckVinInterface {
         }
     }
 
+    private void overwriteBrandPrice(AntRequest originalRequest, JSONObject sourceResponse) throws DBAccessException {
+        if ("1106".equals(sourceResponse.get("code").toString())){
+            JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(sourceResponse.get("data")));
+            String brandId = data.get("brandId").toString();
+            Brand brand = BrandCache.getInstance().getById(brandId);
+            if (brand != null) {
+                if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+brandId)!=null) {
+                    data.put("price", UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+brandId).getPrice());
+                } else if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0")!=null) {
+                    data.put("price", UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0").getPrice());
+                } else {
+                    data.put("price", brand.getPrice());
+                }
+                sourceResponse.put("data", data);
+            } else {
+                logger.error("Cannot find brand {} in cache",brandId);
+                throw new RuntimeException();
+            }
 
+        }
+    }
 
 
 }

@@ -84,7 +84,7 @@ public class GetOrderInterface {
 
             jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
             jsonRequest.remove("sign");
-            jsonRequest.put("sign", EncryptUtil.getAntSign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
+            jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
 
             logger.info("Request to source with: {}", jsonRequest.toString());
             TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source getOrder request");

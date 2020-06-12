@@ -69,7 +69,7 @@ public class EncryptUtil {
     }
 
 
-    public static String getAntSign(Object packBody, String partnerKey) throws Exception{
+    public static String sign(Object packBody, String partnerKey) throws Exception{
         if(packBody==null){
             throw new Exception("请求对象为空！");
         }
