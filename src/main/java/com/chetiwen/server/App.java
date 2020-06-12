@@ -1,6 +1,7 @@
 package com.chetiwen.server;
 
 import com.chetiwen.cache.*;
+import com.chetiwen.controll.RegularHouseKeep;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.rest.RestApplication;
 import com.chetiwen.util.PropertyUtil;
@@ -11,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Calendar;
+import java.util.Timer;
 
 
 public class App {
@@ -48,6 +51,15 @@ public class App {
             UserRateCache.getInstance();
             VinBrandCache.getInstance();
             DebitLogCache.getInstance();
+
+            Timer timer = new Timer();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.hour")));
+            calendar.set(Calendar.MINUTE, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.minute")));
+            calendar.set(Calendar.SECOND, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.second")));
+            timer.scheduleAtFixedRate(new RegularHouseKeep(), calendar.getTime(), 1000l * 60 * 60 * 24);
+            logger.info("save_order housekeeping task started.");
+
         } catch (DBAccessException e) {
             e.printStackTrace();
             logger.error("Error while init system cache , {}", e.getMessage());

@@ -68,6 +68,12 @@ public class SaveOrderCache {
 
         SaveOrderAccessor.getInstance().delSaveOrder(orderNo);
         vinMap.values().removeIf(value -> value.getOrderNo().equals(orderNo));
+    }
 
+    public void houseKeepSaveOrder(int days)  throws DBAccessException {
+        logger.info("houseKeep SaveOrders for {} days", days);
+
+        SaveOrderAccessor.getInstance().housekeepSaveOrder(days);
+        reload();
     }
 }

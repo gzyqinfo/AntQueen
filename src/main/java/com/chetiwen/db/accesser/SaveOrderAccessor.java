@@ -104,4 +104,27 @@ public class SaveOrderAccessor {
         }
         logger.info("deleted save_order record");
     }
+
+    public void housekeepSaveOrder(int days) throws DBAccessException {
+        logger.info("Received save_order housekeeping request. keep days: {}", days);
+
+        String sql = "delete from save_order where DATEDIFF(CURTIME(), create_time) > ?";
+
+        Connection connection = ConnectionPool.getConnection();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, days);
+            preparedStatement.executeUpdate();
+            connection.close();
+        } catch (SQLException e) {
+            try {
+                connection.close();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+            e.printStackTrace();
+            logger.error("error while accessing DB! {}" , e.getMessage());
+        }
+        logger.info("save_order housekept.");
+    }
 }
