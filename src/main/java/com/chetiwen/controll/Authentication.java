@@ -8,6 +8,7 @@ import com.chetiwen.util.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
 import java.util.Base64;
 
 public class Authentication {
@@ -58,13 +59,13 @@ public class Authentication {
             User user = UserCache.getInstance().getByKey(partnerId);
 
             if (user != null) {
-                // for example clientRequest is {"sign":"35ccdaaf743be5fea0b06cf8668ed8ae","vin":"LBVKY9103KSR90425","partnerId":"12345678","ts":1591408116}
-                // To remove sign field .
-                int position = JSONObject.toJSONString(clientRequest).indexOf("sign");
-                String prefix = JSONObject.toJSONString(clientRequest).substring(0, position);
-                String suffix = JSONObject.toJSONString(clientRequest).substring(position+42); // MD5 must be 32
 
-                String serverSign = EncryptUtil.sign(prefix+suffix, user.getPartnerKey());
+                jsonRequest.remove("sign");
+                if (jsonRequest.containsKey("callbackUrl")) {
+                    jsonRequest.put("callbackUrl", URLEncoder.encode(jsonRequest.get("callbackUrl").toString(), "utf-8"));
+                }
+
+                String serverSign = EncryptUtil.sign(jsonRequest, user.getPartnerKey());
                 if (serverSign.toLowerCase().equals(clientSign)) {
                     return true;
                 }

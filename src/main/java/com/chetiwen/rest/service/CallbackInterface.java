@@ -58,6 +58,8 @@ public class CallbackInterface {
                     getOrder.setResponseContent(JSONObject.toJSONString(requestObject));
                     GetOrderCache.getInstance().addGetOrder(getOrder);
                 }
+
+                // TODO: look for callbackUrl cache
             }
 
             AntResponse response = Authentication.genAntResponse(200, "success", logger);

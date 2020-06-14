@@ -96,6 +96,18 @@ public class SaveOrderInterface {
 //                    callBack(clientRequest);
 //
 //                }
+
+                if (originalRequest.getCallbackUrl() != null) {
+                    try {
+                        logger.info("call back to {}", originalRequest.getCallbackUrl());
+                        webResource = restClient.resource(originalRequest.getCallbackUrl());
+                        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, cacheResponse);
+                        logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
+                    } catch (Exception e) {
+                        logger.error("Error ", e);
+                    }
+                }
+
                 logger.info("Return OK. {}", cacheResponse.toJSONString());
                 return Response.status(Response.Status.OK).entity(cacheResponse).build();
 //
@@ -150,6 +162,7 @@ public class SaveOrderInterface {
 //                        Thread.sleep(8000);
 //                        callBack(clientRequest);
 //                    }
+                    // cache orderNo --> callbackUrl-->status 0 for new
                 }
 
                 logger.info("finish processing and return ok. {}", antResponse.toJSONString());

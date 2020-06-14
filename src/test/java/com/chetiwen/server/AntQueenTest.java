@@ -14,6 +14,8 @@ import org.junit.Test;
 import javax.ws.rs.core.MediaType;
 
 
+import java.net.URLEncoder;
+
 import static org.junit.Assert.assertEquals;
 
 public class AntQueenTest {
