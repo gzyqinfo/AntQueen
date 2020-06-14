@@ -34,6 +34,7 @@ public class CallbackInterface {
     private static Logger logger = LoggerFactory.getLogger(CallbackInterface.class);
     private static Client restClient;
     private static WebResource webResource;
+
     static {
         ClientConfig config = new DefaultClientConfig();
         config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
@@ -41,18 +42,18 @@ public class CallbackInterface {
     }
 
     @POST
-    @Path("/callback")
+    @Path("/callback/antqueen")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
     public Response processRequest(Object requestObject) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
-        logger.info("Received Callback request with : {}", requestObject);
+        logger.info("Received Callback request from AntQueen : {}", requestObject);
 
         try {
             AntOrderResponse orderResponse = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntOrderResponse.class);
 
             if (orderResponse.getCode() == 0) {
-                if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(orderResponse.getData().getOrderId())){
+                if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(orderResponse.getData().getOrderId())) {
                     Order getOrder = new Order();
                     getOrder.setOrderNo(String.valueOf(orderResponse.getData().getOrderId()));
                     getOrder.setResponseContent(JSONObject.toJSONString(requestObject));
@@ -66,8 +67,8 @@ public class CallbackInterface {
             return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
 
 
-        }  catch (Exception e) {
-            logger.error("Error: {}",e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error: {}", e.getMessage());
             AntResponse response = Authentication.genAntResponse(99999, "接收回调处理异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
@@ -75,5 +76,14 @@ public class CallbackInterface {
         }
     }
 
-
+    @POST
+    @Path("/callback/qucent")
+    @Consumes("application/json")
+    @Produces("application/json;charset=UTF-8")
+    public Response processQucent(Object requestObject){
+        logger.info("---------------------------------------------------------------------------------------------------");
+        logger.info("Received Callback request from Qucent : {}", requestObject);
+        AntResponse response = Authentication.genAntResponse(0, null, logger);
+        return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+    }
 }
