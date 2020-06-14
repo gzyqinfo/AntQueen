@@ -42,6 +42,35 @@ public class FrontEndResource {
     }
 
     @POST
+    @Path("/authentication")
+    @Consumes("application/json")
+    @Produces("application/json;charset=UTF-8")
+    public Response authentication(Object requestObject) {
+        logger.info("---------------------------------------------------------------------------------------------------");
+        logger.info("Received User authentication request with : {}", JSONObject.toJSONString(requestObject));
+
+        try {
+            if (!Authentication.jsonSign(requestObject)) {
+                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+            }
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("code", 0);
+            jsonObject.put("msg","success");
+
+            logger.info("return brand list {}", jsonObject.toJSONString());
+            return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
+        } catch (Exception e) {
+            logger.error("Error: {}", e.getMessage());
+            AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
+        } finally {
+            logger.info("===================================================================================================");
+        }
+    }
+
+    @POST
     @Path("/brand/list")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")

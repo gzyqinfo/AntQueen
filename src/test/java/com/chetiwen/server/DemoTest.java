@@ -20,9 +20,9 @@ public class DemoTest {
     private static Client restClient;
     private static WebResource webResource;
 
-    private String myUrlPrefix = "http://www.chetiwen.com:8090";
-    private final String myPartnerId = "12345678";
-    private final String myPartnerKey = "Keykkjiwihjij";
+    private String myUrlPrefix = "http://localhost:8090";
+    private final String myPartnerId = "18689205939";
+    private final String myPartnerKey = "highRichHandsome";
 
     @BeforeClass
     public static void setUp() {
@@ -108,6 +108,23 @@ public class DemoTest {
     @Test
     public void testMyGetBalance() throws Exception {
         String url = myUrlPrefix+"/api/get/balance";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", myPartnerId);
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testAuthentication() throws Exception {
+        String url = myUrlPrefix+"/api/authentication";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);
