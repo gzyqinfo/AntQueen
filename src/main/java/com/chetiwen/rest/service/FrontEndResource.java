@@ -59,7 +59,7 @@ public class FrontEndResource {
             jsonObject.put("code", 0);
             jsonObject.put("msg","success");
 
-            logger.info("return brand list {}", jsonObject.toJSONString());
+            logger.info("return {}", jsonObject.toJSONString());
             return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
         } catch (Exception e) {
             logger.error("Error: {}", e.getMessage());

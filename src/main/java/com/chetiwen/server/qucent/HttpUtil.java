@@ -1,4 +1,4 @@
-package com.chetiwen.quanxun;
+package com.chetiwen.server.qucent;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
