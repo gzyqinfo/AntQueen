@@ -1,15 +1,19 @@
 package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
+import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
+import com.chetiwen.db.model.TransactionLog;
 import com.chetiwen.object.AntOrderResponse;
 import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
+import com.chetiwen.server.qucent.RSAUtil;
 import com.chetiwen.util.EncryptUtil;
 import com.chetiwen.util.PropertyUtil;
 import com.sun.jersey.api.client.Client;
@@ -41,13 +45,28 @@ public class CallbackInterface {
         restClient = Client.create(config);
     }
 
+    // 公钥
+    public static String puk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1f3Hq0aM6HVRZ3Si7XA" +
+            "KSNeNsAocmLYC/4YA1MShi42jZEP/gTOQkzvOnUu0uM/YFQZmMgy5LjW/SUrCbQE" +
+            "An7LCKJ3DYUAblO+c5WalZxVEcOZ0M8IwJRD5WQe9bcDcp3xq2+5rD/a5g3XmenY" +
+            "UIG693zyEFTphyEOsikkIXmxPrmqjOm12369HkUPnUQII3uH4fCHwFVm7bTtUhmq" +
+            "6K/TOOFW8CB4Bk8QWeJ9WsnxSQo/0MPTwf45YKKtqqVbrc+QO+4lxuMC6E40qMfh" +
+            "357qWUG1h3om/TP6O94vw9NTPTzQUzP66Hk3Mt4iTjAi+7jx7Y8NNupwHs0QzQG7" +
+            "4wIDAQAB";
+
     @POST
     @Path("/callback/antqueen")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
-    public Response processRequest(Object requestObject) throws Exception {
+    public Response AntQueenCallback(Object requestObject) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Callback request from AntQueen : {}", requestObject);
+        TransactionLog log = new TransactionLog();
+        log.setLogType("AntQueen Callback");
+        log.setUserName("callback");
+        log.setPartnerId("system");
+        log.setTransactionContent(requestObject.toString());
+        TransLogAccessor.getInstance().addLog(log);
 
         try {
             AntOrderResponse orderResponse = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntOrderResponse.class);
@@ -80,10 +99,43 @@ public class CallbackInterface {
     @Path("/callback/qucent")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
-    public Response processQucent(Object requestObject){
+    public Response QucentCallback(Object requestObject) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
-        logger.info("Received Callback request from Qucent : {}", requestObject);
-        AntResponse response = Authentication.genAntResponse(0, null, logger);
-        return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+        logger.info("Received Callback request from Qucent {}", requestObject.toString());
+        String content = null;
+        String encryptType = null;
+        try{
+            JSONObject result = JSONObject.parseObject(requestObject.toString());
+            content = result.get("encrypt").toString();
+            encryptType = result.get("encryptType").toString();
+        }catch (JSONException jsone) {
+            String leftReplace = requestObject.toString().replace("{","");
+            String rightReplace = leftReplace.replace("}", "");
+            String[] abc = rightReplace.split(",");
+            for (int i=0;i<abc.length;i++) {
+                if (abc[i].contains("encrypt=")) {
+                    content = abc[i].split("=")[1];
+                }
+                if (abc[i].contains("encryptType=")) {
+                    encryptType = abc[i].split("=")[1];
+                }
+            }
+        }
+
+        if ("true".equals(encryptType) && content != null) {
+            content = new RSAUtil().decryptByPublicKey(puk, content);
+        }
+
+        TransactionLog log = new TransactionLog();
+        log.setLogType("Qucent Callback");
+        log.setUserName("callback");
+        log.setPartnerId("system");
+        log.setTransactionContent(content);
+        TransLogAccessor.getInstance().addLog(log);
+
+        JSONObject jsonResponse = new JSONObject();
+        jsonResponse.put("code", 0);
+
+        return Response.status(Response.Status.OK).entity(jsonResponse.toJSONString()).build();
     }
 }

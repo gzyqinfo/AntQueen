@@ -3,6 +3,7 @@ package com.chetiwen.rest.service;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
+import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.TransLogAccessor;
@@ -82,7 +83,6 @@ public class SaveOrderInterface {
 
                 //debit
                 float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
-
                 float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
 
                 if (balanceBeforeDebit - debitFee < 0.00000001) {
@@ -91,28 +91,13 @@ public class SaveOrderInterface {
                 }
                 debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee);
 
-//                if (Authentication.authenticateCallBackUrl(clientRequest.getBody().getCallBackUrl())) {
-//                    clientRequest.getBody().setOrderNo(replaceOrderNo);
-//                    callBack(clientRequest);
-//
-//                }
-
                 if (originalRequest.getCallbackUrl() != null) {
-                    try {
-                        logger.info("call back to {}", originalRequest.getCallbackUrl());
-                        webResource = restClient.resource(originalRequest.getCallbackUrl());
-                        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, cacheResponse);
-                        logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
-                    } catch (Exception e) {
-                        logger.error("Error ", e);
-                    }
+                    new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderNo);
                 }
 
                 logger.info("Return OK. {}", cacheResponse.toJSONString());
                 return Response.status(Response.Status.OK).entity(cacheResponse).build();
-//
             } else {
-
                 JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
                 jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
@@ -158,11 +143,9 @@ public class SaveOrderInterface {
                     }
                     debit(originalRequest, saveOrder.getOrderNo(), balanceBeforeDebit, debitFee);
 
-//                    if (Authentication.authenticateCallBackUrl(clientRequest.getBody().getCallBackUrl())) {
-//                        Thread.sleep(8000);
-//                        callBack(clientRequest);
-//                    }
-                    // cache orderNo --> callbackUrl-->status 0 for new
+                    if (originalRequest.getCallbackUrl() != null) {
+                        new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());
+                    }
                 }
 
                 logger.info("finish processing and return ok. {}", antResponse.toJSONString());

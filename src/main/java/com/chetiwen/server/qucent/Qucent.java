@@ -1,6 +1,8 @@
 package com.chetiwen.server.qucent;
 
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.db.accesser.TransLogAccessor;
+import com.chetiwen.db.model.TransactionLog;
 import com.chetiwen.server.App;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -61,11 +63,11 @@ public class Qucent {
 
         JSONObject encrypt = new JSONObject();
         // 产品传入参数
-        encrypt.put("vin", "LBVKY9107LSX62249");
-
-        String encryptStr = JSONObject.toJSONString(encrypt);
+        encrypt.put("vin", "LSVCC2A42BN300952");
+//        encrypt.put("vin", "LBVKY9107LSX62249");
+        String deCryptStr = JSONObject.toJSONString(encrypt);
         // 数据转为json字符串并加密
-        String str = rsaUtil.encryptByPrivateKey(pik, encryptStr);
+        String str = rsaUtil.encryptByPrivateKey(pik, deCryptStr);
 
         // 生成订单编号
         String orderId = RandomUtil.random(23);
@@ -75,7 +77,7 @@ public class Qucent {
         // 生成签名
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("customerId", CUSTOMER_ID);
-        paramMap.put("encrypt", str);
+        paramMap.put("encrypt", deCryptStr);
         paramMap.put("userOrderId", orderId);
         paramMap.put("reqTime", reqTime);
         paramMap.put("encryptType", "false");
@@ -87,7 +89,7 @@ public class Qucent {
 
         // 添加数据
         NameValuePair json1 = new BasicNameValuePair("customerId", CUSTOMER_ID);// 客户ID
-        NameValuePair json2 = new BasicNameValuePair("encrypt", str);// 加密后数据
+        NameValuePair json2 = new BasicNameValuePair("encrypt", deCryptStr);// 加密后数据
         NameValuePair json3 = new BasicNameValuePair("userOrderId", orderId);// 订单号
         NameValuePair json4 = new BasicNameValuePair("reqTime", reqTime);// 时间戳
         NameValuePair json5 = new BasicNameValuePair("sign", MD5Util.encrypt(signStr));// 签名
@@ -107,6 +109,13 @@ public class Qucent {
 
         String response = HttpUtil.doPost(URL, list);
         logger.info("response from Qucent, {}",response);
+
+        TransactionLog log = new TransactionLog();
+        log.setLogType("Qucent");
+        log.setUserName("test");
+        log.setPartnerId("test");
+        log.setTransactionContent(response);
+        TransLogAccessor.getInstance().addLog(log);
         System.out.println(response);
         JSONObject result = JSONObject.parseObject(response);
         if (String.valueOf(result.get("encryptType")).equals("true")) {

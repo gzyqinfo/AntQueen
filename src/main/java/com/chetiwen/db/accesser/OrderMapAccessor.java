@@ -52,7 +52,7 @@ public class OrderMapAccessor {
     }
 
     public void addOrderMap(OrderMap orderMap) throws DBAccessException {
-        logger.info("Received add get order request. Order : {}", orderMap.toString());
+        logger.info("Received add order map request. Order : {}", orderMap.toString());
 
         String sql = "insert into order_map(replace_order_no, order_no) " +
                 "values (?,?)";
