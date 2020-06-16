@@ -1,23 +1,17 @@
 package com.chetiwen.rest.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
 import com.chetiwen.controll.Authentication;
-import com.chetiwen.db.DBAccessException;
+import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
-import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.db.model.TransactionLog;
 import com.chetiwen.object.AntOrderResponse;
-import com.chetiwen.object.AntRequest;
 import com.chetiwen.object.AntResponse;
 import com.chetiwen.server.qucent.RSAUtil;
-import com.chetiwen.util.EncryptUtil;
-import com.chetiwen.util.PropertyUtil;
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -29,7 +23,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
@@ -72,7 +65,8 @@ public class CallbackInterface {
             AntOrderResponse orderResponse = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntOrderResponse.class);
 
             if (orderResponse.getCode() == 0) {
-                if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(orderResponse.getData().getOrderId())) {
+                logger.info("orderResponse.getData().getOrderId() is {}", orderResponse.getData().getOrderId());
+                if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(String.valueOf(orderResponse.getData().getOrderId()))) {
                     Order getOrder = new Order();
                     getOrder.setOrderNo(String.valueOf(orderResponse.getData().getOrderId()));
                     getOrder.setResponseContent(JSONObject.toJSONString(requestObject));
@@ -80,6 +74,10 @@ public class CallbackInterface {
                 }
 
                 // TODO: look for callbackUrl cache
+                if (OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())) != null) {
+                    new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getUrl(),
+                            OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getOrderNo());
+                }
             }
 
             AntResponse response = Authentication.genAntResponse(200, "success", logger);

@@ -107,10 +107,10 @@ public class SaveOrderInterface {
                 } else {
                     notEncodedUrl = PropertyUtil.readValue("call.back.url");
                 }
-                jsonRequest.put("callBackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
+                jsonRequest.put("callbackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
                 jsonRequest.remove("sign");
                 jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-                jsonRequest.put("callBackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
+                jsonRequest.put("callbackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
                 logger.info("Request to source with: {}", jsonRequest.toString());
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
 
@@ -208,6 +208,7 @@ public class SaveOrderInterface {
             return true;
         } else {
             originalRequest.setSign(null);
+            originalRequest.setCallbackUrl(null);
             originalRequest.setPartnerId(PropertyUtil.readValue("app.key"));
             originalRequest.setSign(EncryptUtil.sign(originalRequest, PropertyUtil.readValue("app.secret")));
 

@@ -46,7 +46,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "JTHBJ1GG9F2084264");
         json.put("sign", EncryptUtil.sign(JSONObject.parseObject(json.toJSONString()), partnerKey));
         System.out.println(json);
 
@@ -231,7 +231,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("orderId", "1464605777");
+        json.put("orderId", "1464652064");
 
         json.put("sign", EncryptUtil.sign(json, partnerKey));
         System.out.println(json.toJSONString());

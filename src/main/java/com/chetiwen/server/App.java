@@ -51,6 +51,8 @@ public class App {
             UserRateCache.getInstance();
             VinBrandCache.getInstance();
             DebitLogCache.getInstance();
+            OrderCallbackCache.getInstance();
+            OrderReportCache.getInstance();
 
             Timer timer = new Timer();
             Calendar calendar = Calendar.getInstance();

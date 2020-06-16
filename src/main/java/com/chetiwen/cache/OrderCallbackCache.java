@@ -56,4 +56,11 @@ public class OrderCallbackCache {
         idMap.values().removeIf(value -> value.getOrderNo().equals(orderNo));
     }
 
+    public void addOrderCallback(OrderCallback orderCallback) throws DBAccessException {
+        logger.info("add into OrderCallback cache: {}", orderCallback);
+
+        OrderCallbackAccessor.getInstance().addOrderCallback(orderCallback);
+        idMap.put(orderCallback.getOrderNo(), orderCallback);
+    }
+
 }

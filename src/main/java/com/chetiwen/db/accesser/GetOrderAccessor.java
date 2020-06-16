@@ -41,7 +41,6 @@ public class GetOrderAccessor {
                 Order getOrder = new Order();
                 getOrder.setCreateTime(rs.getTimestamp("create_time"));
                 getOrder.setOrderNo(rs.getString("order_no"));
-                // For saving memory
                 getOrder.setResponseContent(rs.getString("response_content"));
                 getOrder.setVin(rs.getString("vin"));
                 list.add(getOrder);

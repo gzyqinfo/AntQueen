@@ -1,7 +1,9 @@
 package com.chetiwen.controll;
 
 import com.chetiwen.cache.GetOrderCache;
+import com.chetiwen.cache.OrderCallbackCache;
 import com.chetiwen.db.model.Order;
+import com.chetiwen.db.model.OrderCallback;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -22,7 +24,6 @@ public class CallbackProcessor {
 
         Runnable callbackAction = () -> {
             try {
-
                 if (GetOrderCache.getInstance().getGetOrderMap().containsKey(orderNo)) {
                     Order order = GetOrderCache.getInstance().getByKey(orderNo);
                     ClientConfig config = new DefaultClientConfig();
@@ -32,11 +33,14 @@ public class CallbackProcessor {
                     WebResource webResource = restClient.resource(url);
                     ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, order.getResponseContent());
                     logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
+                    OrderCallbackCache.getInstance().delOrderCallback(orderNo);
                 } else {
                     logger.info("There is no order currently, store it to orderCallback");
-                    //TODO
+                    OrderCallback orderCallback = new OrderCallback();
+                    orderCallback.setUrl(url);
+                    orderCallback.setOrderNo(orderNo);
+                    OrderCallbackCache.getInstance().addOrderCallback(orderCallback);
                 }
-
             } catch (Exception e) {
                 logger.error("Fail to do callback");
                 e.printStackTrace();
