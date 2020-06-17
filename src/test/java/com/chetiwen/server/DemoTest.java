@@ -23,14 +23,31 @@ public class DemoTest {
     private static WebResource webResource;
 
     private String myUrlPrefix = "http://www.chetiwen.com:8090";
-    private final String myPartnerId = "12345678";
-    private final String myPartnerKey = "Keykkjiwihjij";
+    private final String myPartnerId = "bcdkjdfkjfs@qq.com";
+    private final String myPartnerKey = "12345678901";
 
     @BeforeClass
     public static void setUp() {
         ClientConfig config = new DefaultClientConfig();
         config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
         restClient = Client.create(config);
+    }
+
+    @Test
+    public void testAuthentication() throws Exception {
+        String url = myUrlPrefix+"/api/authentication";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", myPartnerId);
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
     }
 
     @Test
@@ -50,21 +67,18 @@ public class DemoTest {
         assertEquals(200, response.getStatus());
     }
 
-
     @Test
     public void testMyQueryByVin() throws Exception {
-        String url = myUrlPrefix+"/api/saveOrder";
+        String url = myUrlPrefix+"/api/queryByVin";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
         json.put("vin", "YV1CT985881450469");
-//        json.put("vin", "WBACR6102L9D22000");
-//        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8090/api/callback/antqueen", "utf-8"));
+//        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-//        json.put("callbackUrl", ("http://39.100.117.169:8090/api/callback/antqueen"));
-
+//        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
@@ -82,9 +96,7 @@ public class DemoTest {
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
         json.put("orderId", 1464652064);
-
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
@@ -120,44 +132,6 @@ public class DemoTest {
         json.put("partnerId", myPartnerId);
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
-
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-        System.out.println(response.getEntity(Object.class));
-        assertEquals(200, response.getStatus());
-    }
-
-    @Test
-    public void testAuthentication() throws Exception {
-        String url = myUrlPrefix+"/api/authentication";
-
-        JSONObject json = new JSONObject();
-        int ts = (int)(System.currentTimeMillis()/1000);
-        json.put("ts", ts);
-        json.put("partnerId", myPartnerId);
-        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-        System.out.println(json.toJSONString());
-
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-        System.out.println(response.getEntity(Object.class));
-        assertEquals(200, response.getStatus());
-    }
-
-    @Test
-    public void testCallBackQueryByVin() throws Exception {
-        String url = myUrlPrefix+"/api/saveOrder";
-
-        JSONObject json = new JSONObject();
-        int ts = (int)(System.currentTimeMillis()/1000);
-        json.put("ts", ts);
-        json.put("partnerId", myPartnerId);
-        json.put("vin", "LBVKY9107LSX62249");
-        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8090/api/callback", "utf-8"));
-        json.put("sign", EncryptUtil.sign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
-        json.put("callbackUrl", ("http://39.100.117.169:8090/api/callback"));
-        System.out.println(json.toJSONString());
-
         webResource = restClient.resource(url);
         ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
         System.out.println(response.getEntity(Object.class));
@@ -172,10 +146,8 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464658493);
-
+        json.put("orderId", 1464661425);
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);

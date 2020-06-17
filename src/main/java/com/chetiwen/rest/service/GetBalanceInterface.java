@@ -49,7 +49,7 @@ public class GetBalanceInterface {
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
-            logger.info("===================================================================================================");
+            logger.info("###################################################################################################");
         }
     }
 

@@ -45,7 +45,7 @@ public class SaveOrderInterface {
     }
 
     @POST
-    @Path("/saveOrder")
+    @Path("/queryByVin")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
     public Response processRequest(Object requestObject)  {

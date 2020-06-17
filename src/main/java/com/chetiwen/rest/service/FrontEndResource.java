@@ -38,6 +38,8 @@ public class FrontEndResource {
         } catch (DBAccessException e) {
             logger.error("Fail to connect to DataBase, error: {}", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            logger.info("###################################################################################################");
         }
     }
 
@@ -66,7 +68,7 @@ public class FrontEndResource {
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
-            logger.info("===================================================================================================");
+            logger.info("###################################################################################################");
         }
     }
 
@@ -101,7 +103,7 @@ public class FrontEndResource {
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
-            logger.info("===================================================================================================");
+            logger.info("###################################################################################################");
         }
     }
 
@@ -139,7 +141,7 @@ public class FrontEndResource {
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
-            logger.info("===================================================================================================");
+            logger.info("###################################################################################################");
         }
     }
 }
