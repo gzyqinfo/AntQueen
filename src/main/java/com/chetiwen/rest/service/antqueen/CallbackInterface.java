@@ -1,4 +1,4 @@
-package com.chetiwen.rest.service;
+package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;

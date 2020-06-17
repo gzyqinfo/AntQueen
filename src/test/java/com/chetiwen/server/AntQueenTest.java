@@ -96,7 +96,7 @@ public class AntQueenTest {
 
     @Test
     public void testMyQueryByVin() throws Exception {
-        String url = myUrlPrefix+"/api/saveOrder";
+        String url = myUrlPrefix+"/api/queryByVin";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);
@@ -141,7 +141,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464620323);
+        json.put("orderId", 1956971488);
 
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 
