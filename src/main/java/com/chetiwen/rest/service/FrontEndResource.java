@@ -8,8 +8,8 @@ import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.model.Brand;
 import com.chetiwen.db.model.DebitLog;
-import com.chetiwen.object.AntRequest;
-import com.chetiwen.object.AntResponse;
+import com.chetiwen.object.antqueen.AntRequest;
+import com.chetiwen.object.antqueen.AntResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

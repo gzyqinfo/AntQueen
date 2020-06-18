@@ -1,4 +1,4 @@
-package com.chetiwen.object;
+package com.chetiwen.object.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 

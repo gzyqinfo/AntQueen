@@ -1,11 +1,11 @@
-package com.chetiwen.object;
+package com.chetiwen.object.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 
-public class AntResponse {
+public class AntOrderResponse {
     private int code;
     private String msg;
-    private AntData data;
+    private AntOrderData data;
 
     public int getCode() {
         return code;
@@ -23,11 +23,11 @@ public class AntResponse {
         this.msg = msg;
     }
 
-    public AntData getData() {
+    public AntOrderData getData() {
         return data;
     }
 
-    public void setData(AntData data) {
+    public void setData(AntOrderData data) {
         this.data = data;
     }
 

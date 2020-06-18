@@ -3,7 +3,7 @@ package com.chetiwen.controll;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.model.User;
-import com.chetiwen.object.AntResponse;
+import com.chetiwen.object.antqueen.AntResponse;
 import com.chetiwen.util.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

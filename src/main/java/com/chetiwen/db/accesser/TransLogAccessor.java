@@ -5,7 +5,7 @@ import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.model.TransactionLog;
-import com.chetiwen.object.AntRequest;
+import com.chetiwen.object.antqueen.AntRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,14 +3,16 @@ package com.chetiwen.rest.service.antqueen;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
+import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.db.model.TransactionLog;
-import com.chetiwen.object.AntOrderResponse;
-import com.chetiwen.object.AntResponse;
+import com.chetiwen.object.antqueen.AntOrderResponse;
+import com.chetiwen.object.antqueen.AntResponse;
 import com.chetiwen.server.qucent.RSAUtil;
+import com.chetiwen.util.EncryptUtil;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
@@ -55,7 +57,7 @@ public class CallbackInterface {
         logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Callback request from AntQueen : {}", requestObject);
         TransactionLog log = new TransactionLog();
-        log.setLogType("AntQueen Callback");
+        log.setLogType(LogType.ANTQUEEN_CALLBACK);
         log.setUserName("callback");
         log.setPartnerId("system");
         log.setTransactionContent(requestObject.toString());
@@ -121,11 +123,11 @@ public class CallbackInterface {
         }
 
         if ("true".equals(encryptType) && content != null) {
-            content = new RSAUtil().decryptByPublicKey(puk, content);
+            content = EncryptUtil.convertUnicode(new RSAUtil().decryptByPublicKey(puk, content));
         }
 
         TransactionLog log = new TransactionLog();
-        log.setLogType("Qucent Callback");
+        log.setLogType(LogType.QUCENT_CALLBACK);
         log.setUserName("callback");
         log.setPartnerId("system");
         log.setTransactionContent(content);
