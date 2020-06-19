@@ -71,7 +71,7 @@ public class SaveOrderInterface {
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
                 String orderNo = data.get("orderId").toString();
-                String replaceOrderNo = generateOrderNo(Integer.parseInt(orderNo));
+                String replaceOrderNo = generateOrderNo();
                 OrderMap orderMap = new OrderMap();
                 orderMap.setReplaceOrderNo(replaceOrderNo);
                 orderMap.setOrderNo(orderNo);
@@ -98,26 +98,7 @@ public class SaveOrderInterface {
                 logger.info("Return OK. {}", cacheResponse.toJSONString());
                 return Response.status(Response.Status.OK).entity(cacheResponse).build();
             } else {
-                JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
-
-                jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
-                String notEncodedUrl;
-                if (ConnectionPool.isProduction) {
-                    notEncodedUrl = PropertyUtil.readValue("call.back.url.production");
-                } else {
-                    notEncodedUrl = PropertyUtil.readValue("call.back.url");
-                }
-                jsonRequest.put("callbackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
-                jsonRequest.remove("sign");
-                jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-                jsonRequest.put("callbackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
-                logger.info("Request to source with: {}", jsonRequest.toString());
-                TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
-
-                String url = PropertyUtil.readValue("source.url") + "/api/queryByVin";
-                webResource = restClient.resource(url);
-                ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,jsonRequest);
-                JSONObject antResponse = response.getEntity(JSONObject.class);
+                JSONObject antResponse = askSource(requestObject, originalRequest);
 
                 logger.info("get ant response: {}", antResponse.toJSONString());
                 TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source saveOrder response");
@@ -133,6 +114,13 @@ public class SaveOrderInterface {
                     saveOrder.setResponseContent(antResponse.toJSONString());
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
+                    OrderMap orderMap = new OrderMap();
+                    orderMap.setReplaceOrderNo(generateOrderNo());
+                    orderMap.setOrderNo(saveOrder.getOrderNo());
+                    OrderMapCache.getInstance().addOrderMap(orderMap);
+                    data.put("orderId", orderMap.getReplaceOrderNo());
+                    antResponse.put("data", data);
+
                     //debit
                     float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
                     float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
@@ -141,7 +129,7 @@ public class SaveOrderInterface {
                         AntResponse badResponse = Authentication.genAntResponse(1002, "账户余额不足", logger);
                         return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
                     }
-                    debit(originalRequest, saveOrder.getOrderNo(), balanceBeforeDebit, debitFee);
+                    debit(originalRequest, orderMap.getReplaceOrderNo(), balanceBeforeDebit, debitFee);
 
                     if (originalRequest.getCallbackUrl() != null) {
                         new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());
@@ -159,6 +147,29 @@ public class SaveOrderInterface {
         } finally {
             logger.info("###################################################################################################");
         }
+    }
+
+    public JSONObject askSource(Object requestObject, AntRequest originalRequest) throws Exception {
+        JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
+
+        jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
+        String notEncodedUrl;
+        if (ConnectionPool.isProduction) {
+            notEncodedUrl = PropertyUtil.readValue("call.back.url.production");
+        } else {
+            notEncodedUrl = PropertyUtil.readValue("call.back.url");
+        }
+        jsonRequest.put("callbackUrl", URLEncoder.encode(notEncodedUrl,"utf-8"));
+        jsonRequest.remove("sign");
+        jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
+        jsonRequest.put("callbackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
+        logger.info("Request to source with: {}", jsonRequest.toString());
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
+
+        String url = PropertyUtil.readValue("source.url") + "/api/queryByVin";
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,jsonRequest);
+        return response.getEntity(JSONObject.class);
     }
 
     private float getDebitFee(String partnerId, String vin) throws DBAccessException {
@@ -237,10 +248,13 @@ public class SaveOrderInterface {
         return false;
     }
 
-    private String generateOrderNo(int oldNo) {
-        int ts = (int)(System.currentTimeMillis()/1000);
-        int seed = ts - 1100000000;
-        return String.valueOf(seed+oldNo);
+    private String generateOrderNo() throws Exception {
+        int newID;
+        do {
+            newID = (int)(Math.random()*90000000)+10000000;
+        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(String.valueOf(newID)));
+
+        return String.valueOf(newID);
     }
 
 }

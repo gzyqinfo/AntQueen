@@ -3,7 +3,6 @@ package com.chetiwen.server.qucent;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.TransactionLog;
-import com.chetiwen.server.App;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -107,15 +106,22 @@ public class Qucent {
         list.add(json7);
         list.add(json8);
 
+        TransactionLog log = new TransactionLog();
+        log.setLogType("Qucent Request");
+        log.setUserName("test");
+        log.setPartnerId("test");
+        log.setTransactionContent(list.toString());
+        TransLogAccessor.getInstance().addLog(log);
+
         String response = HttpUtil.doPost(URL, list);
         logger.info("response from Qucent, {}",response);
 
-        TransactionLog log = new TransactionLog();
-        log.setLogType("Qucent");
-        log.setUserName("test");
-        log.setPartnerId("test");
-        log.setTransactionContent(response);
-        TransLogAccessor.getInstance().addLog(log);
+        TransactionLog responseLog = new TransactionLog();
+        responseLog.setLogType("Qucent Response");
+        responseLog.setUserName("test");
+        responseLog.setPartnerId("test");
+        responseLog.setTransactionContent(response);
+        TransLogAccessor.getInstance().addLog(responseLog);
         System.out.println(response);
         JSONObject result = JSONObject.parseObject(response);
         if (String.valueOf(result.get("encryptType")).equals("true")) {

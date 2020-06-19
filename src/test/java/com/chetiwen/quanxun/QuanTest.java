@@ -60,7 +60,7 @@ public class QuanTest {
 
         JSONObject encrypt = new JSONObject();
         // 产品传入参数
-        encrypt.put("vin", "LBVKY9107LSX62249");
+        encrypt.put("vin", "JTHBJ1GG9F2084264");
 
         String encryptStr = JSONObject.toJSONString(encrypt);
         // 数据转为json字符串并加密
@@ -104,6 +104,7 @@ public class QuanTest {
         list.add(json7);
         list.add(json8);
 
+        System.out.println("send: "+list.toString());
         String response = HttpUtil.doPost(URL, list);
         System.out.println(response);
         JSONObject result = JSONObject.parseObject(response);

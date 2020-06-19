@@ -57,15 +57,15 @@ public class GetOrderInterface {
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original getOrder request");
 
             String sourceOrderNo = originalRequest.getOrderId();
-            if (OrderMapCache.getInstance().getOrderMap().containsKey(originalRequest.getOrderId())) {
-                logger.info("there is replaced order");
-                sourceOrderNo = OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo();
-            }
-
             if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
                 logger.info("No debit record for {} with order : {}", originalRequest.getPartnerId(), sourceOrderNo);
                 AntResponse response = Authentication.genAntResponse(1200, "无效订单号", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+            }
+
+            if (OrderMapCache.getInstance().getOrderMap().containsKey(originalRequest.getOrderId())) {
+                logger.info("there is replaced order");
+                sourceOrderNo = OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo();
             }
 
             if (GetOrderCache.getInstance().getGetOrderMap().containsKey(sourceOrderNo)) {
@@ -73,26 +73,15 @@ public class GetOrderInterface {
                 Order order = GetOrderCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
                     AntOrderResponse orderResponse = JSONObject.parseObject(order.getResponseContent(), AntOrderResponse.class);
+                    orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
                     orderResponse.getData().setMobilUrl(null);
-                    orderResponse.getData().setPcUrl(null); //TODO reset url
+                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/web/onlyForWebUser"); //TODO reset url
                     logger.info("Return OK. {}", orderResponse.toString());
                     return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
                 }
             }
 
-            JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
-
-            jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
-            jsonRequest.remove("sign");
-            jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-
-            logger.info("Request to source with: {}", jsonRequest.toString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source getOrder request");
-
-            String url = PropertyUtil.readValue("source.url") + "/api/getOrderInfo";
-            webResource = restClient.resource(url);
-            ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,jsonRequest);
-            JSONObject antResponse = response.getEntity(JSONObject.class);
+            JSONObject antResponse = askSource(requestObject, originalRequest, sourceOrderNo);
 
             logger.info("get ant response: {}", antResponse.toJSONString());
             TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source getOrder response");
@@ -106,6 +95,7 @@ public class GetOrderInterface {
 
                 }
                 AntOrderResponse orderResponse = JSONObject.parseObject(antResponse.toJSONString(), AntOrderResponse.class);
+                orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
                 orderResponse.getData().setMobilUrl(null);
                 orderResponse.getData().setPcUrl("http://ctw.che9000.com/web/onlyForWebUser");
 
@@ -114,12 +104,8 @@ public class GetOrderInterface {
             } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
                 //对已收款退费，同时不再支持该订单的查询
                 String partnerId = originalRequest.getPartnerId();
-                String debitKey = partnerId+"/"+sourceOrderNo;
+                String  debitKey = partnerId+"/"+originalRequest.getOrderId();
                 DebitLog debitLog = DebitLogCache.getInstance().getDebitLogMap().get(debitKey);
-                if (debitLog == null) {
-                    debitKey = partnerId+"/"+originalRequest.getOrderId();
-                    debitLog = DebitLogCache.getInstance().getDebitLogMap().get(debitKey);
-                }
                 if (debitLog != null) {
                     float debitFee = debitLog.getDebitFee();
                     UserCache.getInstance().getByKey(partnerId).setBalance(UserCache.getInstance().getByKey(partnerId).getBalance()+debitFee);
@@ -141,5 +127,20 @@ public class GetOrderInterface {
         }
     }
 
+    public JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
+        JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
+        jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
+        jsonRequest.put("orderId", Integer.valueOf(sourceOrderNo));
+        jsonRequest.remove("sign");
+        jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
+
+        logger.info("Request to source with: {}", jsonRequest.toString());
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source getOrder request");
+
+        String url = PropertyUtil.readValue("source.url") + "/api/getOrderInfo";
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,jsonRequest);
+        return response.getEntity(JSONObject.class);
+    }
 }

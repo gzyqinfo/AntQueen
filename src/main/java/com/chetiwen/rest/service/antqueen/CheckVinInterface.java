@@ -56,26 +56,39 @@ public class CheckVinInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original checkVin request");
 
-            AntRequest antRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            antRequest.setSign(null);
-            antRequest.setPartnerId(PropertyUtil.readValue("app.key"));
-            antRequest.setSign(EncryptUtil.sign(antRequest, PropertyUtil.readValue("app.secret")));
+            JSONObject checkVinResponse;
+            if (VinBrandCache.getInstance().getByKey(originalRequest.getVin())!=null) {
+                checkVinResponse = new JSONObject();
+                checkVinResponse.put("code", 1106);
+                checkVinResponse.put("msg", "品牌可以查询");
+                JSONObject data = new JSONObject();
+                data.put("isEngine", 0);
+                data.put("isLicensePlate", 0);
+                data.put("brandId", Integer.valueOf(VinBrandCache.getInstance().getByKey(originalRequest.getVin()).getBrandId()).intValue());
+                data.put("brandName", VinBrandCache.getInstance().getByKey(originalRequest.getVin()).getBrandName());
+                checkVinResponse.put("data", data);
+            } else {
 
-            logger.info("Request to source with: {}", antRequest.toString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), "source checkVin request");
+                AntRequest antRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
+                antRequest.setSign(null);
+                antRequest.setPartnerId(PropertyUtil.readValue("app.key"));
+                antRequest.setSign(EncryptUtil.sign(antRequest, PropertyUtil.readValue("app.secret")));
 
-            String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
-            webResource = restClient.resource(url);
-            ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,antRequest);
+                logger.info("Request to source with: {}", antRequest.toString());
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), "source checkVin request");
 
-            JSONObject sourceResponse = response.getEntity(JSONObject.class);
-            logger.info("Got response: {}", sourceResponse.toJSONString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, sourceResponse.toJSONString(), "source checkVin response");
+                String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
+                webResource = restClient.resource(url);
+                ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, antRequest);
 
-            overwriteBrandPrice(originalRequest, sourceResponse);
+                checkVinResponse = response.getEntity(JSONObject.class);
+                logger.info("Got response: {}", checkVinResponse.toJSONString());
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, checkVinResponse.toJSONString(), "source checkVin response");
+            }
+            overwriteBrandPrice(originalRequest, checkVinResponse);
 
-            logger.info("return {}", sourceResponse);
-            return Response.status(Response.Status.OK).entity(sourceResponse.toJSONString()).build();
+            logger.info("return {}", checkVinResponse);
+            return Response.status(Response.Status.OK).entity(checkVinResponse.toJSONString()).build();
         } catch (Exception e) {
             logger.error("Error: {}",e.getMessage());
             AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);

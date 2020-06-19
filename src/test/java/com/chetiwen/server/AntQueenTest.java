@@ -82,7 +82,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("vin", "WBACR6102L9D22001");
+        json.put("vin", "LYVFD41A4JB174297");
 //        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/callback/order/get", "utf-8"));
         json.put("sign", EncryptUtil.sign(JSONObject.parseObject(json.toJSONString()), partnerKey));
 //        json.put("callbackUrl", ("http://39.100.117.169:8139/callback/order/get"));
@@ -102,8 +102,8 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-//        json.put("vin", "LBVKY9103KSR90425");
-        json.put("vin", "WBACR6102L9D22000");
+        json.put("vin", "LYVFD41A4JB174297");
+//        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -121,7 +121,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", partnerId);
-        json.put("orderId", 1464605749);
+        json.put("orderId", 1464688257);
 
         json.put("sign", EncryptUtil.sign(json, partnerKey));
 
@@ -141,7 +141,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1956971488);
+        json.put("orderId", 28036376);
 
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 
@@ -153,6 +153,23 @@ public class AntQueenTest {
         assertEquals(200, response.getStatus());
     }
 
+    @Test
+    public void testMyGetOrderReport() throws Exception {
+        String url = myUrlPrefix+"/api/getOrderReport";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", myPartnerId);
+        json.put("orderId", 28036376);
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
     @Test
     public void testMyGetBrands() throws Exception {
         String url = myUrlPrefix+"/api/brand/list";
