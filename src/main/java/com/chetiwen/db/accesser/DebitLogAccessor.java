@@ -34,8 +34,8 @@ public class DebitLogAccessor {
     public void addLog(DebitLog log) throws DBAccessException {
         logger.info("Received add debit log data request. log: {}", log.toString());
 
-        String sql = "insert into debit_log(order_no, vin, partner_id, brand_id, brand_name, balance_before_debit, debit_fee) " +
-                "values (?,?,?,?,?,?,?)";
+        String sql = "insert into debit_log(order_no, vin, partner_id, brand_id, brand_name, balance_before_debit, debit_fee, fee_type) " +
+                "values (?,?,?,?,?,?,?,?)";
         Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -46,6 +46,7 @@ public class DebitLogAccessor {
             preparedStatement.setString(5, log.getBrandName());
             preparedStatement.setFloat(6, log.getBalanceBeforeDebit());
             preparedStatement.setFloat(7, log.getDebitFee());
+            preparedStatement.setString(8, log.getFeeType());
             preparedStatement.executeUpdate();
             connection.close();
         } catch (SQLException e) {
@@ -70,6 +71,7 @@ public class DebitLogAccessor {
                 userOrder.setDebitFee(rs.getFloat("debit_fee"));
                 userOrder.setOrderNo(rs.getString("order_no"));
                 userOrder.setVin(rs.getString("vin"));
+                userOrder.setFeeType(rs.getString("fee_type"));
                 list.add(userOrder);
             }
             connection.close();

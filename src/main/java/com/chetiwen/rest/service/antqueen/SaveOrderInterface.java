@@ -202,6 +202,7 @@ public class SaveOrderInterface {
         debitLog.setDebitFee(debitFee);
         debitLog.setOrderNo(orderId);
         debitLog.setVin(request.getVin());
+        debitLog.setFeeType("已计费");
         VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
         if (vinBrand!=null) {
             debitLog.setBrandId(vinBrand.getBrandId());

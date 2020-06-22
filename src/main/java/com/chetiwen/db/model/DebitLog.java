@@ -12,7 +12,7 @@ public class DebitLog {
     private String brandName;
     private float balanceBeforeDebit;
     private float debitFee;
-
+    private String feeType;
 
     public int getLogId() {
         return logId;
@@ -86,6 +86,14 @@ public class DebitLog {
         this.vin = vin;
     }
 
+    public String getFeeType() {
+        return feeType;
+    }
+
+    public void setFeeType(String feeType) {
+        this.feeType = feeType;
+    }
+
     @Override
     public String toString() {
         return "DebitLog{" +
@@ -98,6 +106,7 @@ public class DebitLog {
                 ", brandName='" + brandName + '\'' +
                 ", balanceBeforeDebit=" + balanceBeforeDebit +
                 ", debitFee=" + debitFee +
+                ", feeType='" + feeType + '\'' +
                 '}';
     }
 }
