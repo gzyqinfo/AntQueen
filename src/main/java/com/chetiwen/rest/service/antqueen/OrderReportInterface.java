@@ -2,12 +2,15 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
+import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
+import com.chetiwen.object.antqueen.OrderReportRepairDetail;
+import com.chetiwen.object.antqueen.OrderReportResponse;
 import com.chetiwen.util.EncryptUtil;
 import com.chetiwen.util.PropertyUtil;
 import com.sun.jersey.api.client.Client;
@@ -53,7 +56,7 @@ public class OrderReportInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original getOrderReport request");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_ORDERREP_REQUEST);
 
             String sourceOrderNo = originalRequest.getOrderId();
             if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
@@ -67,44 +70,34 @@ public class OrderReportInterface {
                 sourceOrderNo = OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo();
             }
 
-
             if (OrderReportCache.getInstance().getOrderReportMap().containsKey(sourceOrderNo)) {
                 logger.info("there is cached order");
                 Order order = OrderReportCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
-                    JSONObject orderReport = JSONObject.parseObject(order.getResponseContent());
-                    JSONObject orderReportData =  JSONObject.parseObject(orderReport.get("data").toString());
-                    orderReportData.put("reportUrl", "http://ctw.che9000.com/web/onlyForWebUser");
-                    orderReportData.put("reportNo", originalRequest.getOrderId());
-                    orderReportData.put("makeReportDate", String.valueOf(originalRequest.getTs()));
-                    orderReport.put("data", orderReportData);
-
-                    logger.info("Return OK. {}", orderReport.toJSONString());
-                    return Response.status(Response.Status.OK).entity(orderReport.toJSONString()).build();
+                    OrderReportResponse orderReport = JSONObject.parseObject(order.getResponseContent(), OrderReportResponse.class);
+                    resetOrderReport(originalRequest, orderReport);
+                    logger.info("Return OK. {}", orderReport.toString());
+                    return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
                 }
             }
             JSONObject antResponse = askSource(requestObject, originalRequest, sourceOrderNo);
 
             logger.info("get ant response: {}", antResponse.toJSONString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source getOrderReport response");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), LogType.ANTQUEEN_ORDERREP_RESPONSE);
 
             if ("0".equals(antResponse.get("code").toString())) {
-                JSONObject orderReport = JSONObject.parseObject(antResponse.toJSONString());
-                JSONObject orderReportData =  JSONObject.parseObject(orderReport.get("data").toString());
-                orderReportData.put("reportNo", Integer.valueOf(originalRequest.getOrderId()));
-                orderReportData.put("reportUrl", "http://ctw.che9000.com/web/onlyForWebUser");
-                orderReportData.put("makeReportDate", String.valueOf(originalRequest.getTs()));
-                orderReport.put("data", orderReportData);
+                OrderReportResponse orderReport = JSONObject.parseObject(antResponse.toJSONString(), OrderReportResponse.class);
+                resetOrderReport(originalRequest, orderReport);
 
                 if (!OrderReportCache.getInstance().getOrderReportMap().containsKey(sourceOrderNo)){
                     Order getOrder = new Order();
                     getOrder.setOrderNo(sourceOrderNo);
-                    getOrder.setVin(String.valueOf(orderReportData.get("vin")));
+                    getOrder.setVin(String.valueOf(orderReport.getData().getVin()));
                     getOrder.setResponseContent(antResponse.toJSONString());
                     OrderReportCache.getInstance().addOrderReport(getOrder);
                 }
-                logger.info("finish processing and return ok. {}", orderReport.toJSONString());
-                return Response.status(Response.Status.OK).entity(orderReport.toJSONString()).build();
+                logger.info("finish processing and return ok. {}", orderReport.toString());
+                return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
             } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
                 //对已收款退费，同时不再支持该订单的查询
                 String partnerId = originalRequest.getPartnerId();
@@ -131,6 +124,18 @@ public class OrderReportInterface {
         }
     }
 
+    public void resetOrderReport(AntRequest originalRequest, OrderReportResponse orderReport) {
+        orderReport.getData().setReportNo(Integer.valueOf(originalRequest.getOrderId()).intValue());
+//                    orderReportData.put("reportUrl", "http://ctw.che9000.com/#/showOrder?orderNo="+originalRequest.getOrderId());
+        orderReport.getData().setReportUrl(null);
+        orderReport.getData().setMakeReportDate(originalRequest.getTs());
+        if (orderReport.getData().getNormalRepairRecords() != null) {
+            for (OrderReportRepairDetail repairDetail : orderReport.getData().getNormalRepairRecords()) {
+                repairDetail.setOther(EncryptUtil.replacePhoneNumber(repairDetail.getOther()));
+            }
+        }
+    }
+
     public JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
         JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
         jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
@@ -139,7 +144,7 @@ public class OrderReportInterface {
         jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
 
         logger.info("Request to source with: {}", jsonRequest.toString());
-        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source getOrderReport request");
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), LogType.ANTQUEEN_ORDERREP_REQUEST);
 
         String url = PropertyUtil.readValue("source.url") + "/api/getReportDetectData";
         webResource = restClient.resource(url);

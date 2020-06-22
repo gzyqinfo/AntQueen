@@ -2,6 +2,7 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
+import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.ConnectionPool;
@@ -59,7 +60,7 @@ public class SaveOrderInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original saveOrder request");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_QUERYVIN_REQUEST);
 
             if (!canQueryVin(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1101, "数据维护中", logger);
@@ -101,7 +102,7 @@ public class SaveOrderInterface {
                 JSONObject antResponse = askSource(requestObject, originalRequest);
 
                 logger.info("get ant response: {}", antResponse.toJSONString());
-                TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source saveOrder response");
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), LogType.ANTQUEEN_QUERYVIN_RESPONSE);
 
                 if ("0".equals(antResponse.get("code").toString())) {
                     //cache it
@@ -164,7 +165,7 @@ public class SaveOrderInterface {
         jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
         jsonRequest.put("callbackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
         logger.info("Request to source with: {}", jsonRequest.toString());
-        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source saveOrder request");
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), LogType.ANTQUEEN_QUERYVIN_REQUEST);
 
         String url = PropertyUtil.readValue("source.url") + "/api/queryByVin";
         webResource = restClient.resource(url);

@@ -31,14 +31,6 @@ import javax.ws.rs.core.Response;
 @Path("/api")
 public class CallbackInterface {
     private static Logger logger = LoggerFactory.getLogger(CallbackInterface.class);
-    private static Client restClient;
-    private static WebResource webResource;
-
-    static {
-        ClientConfig config = new DefaultClientConfig();
-        config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
-        restClient = Client.create(config);
-    }
 
     // 公钥
     public static String puk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1f3Hq0aM6HVRZ3Si7XA" +

@@ -8,6 +8,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class EncryptUtil {
@@ -174,4 +176,32 @@ public class EncryptUtil {
         }
         return outBuffer.toString();
     }
+
+    /**
+     * 查询符合的号码
+     * @param str
+     */
+    public static String replacePhoneNumber(String str){
+        String replacement = str;
+        // 查询符合的手机号码
+        Pattern pattern = Pattern.compile("((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}");
+        // 创建匹配给定输入与此模式的匹配器。
+        Matcher matcher = pattern.matcher(str);
+        //查找字符串中是否有符合的子字符串
+        while(matcher.find()){
+            //查找到符合的
+            replacement = replacement.replace(matcher.group(), "***********");
+        }
+        //查询符合的固定电话
+        pattern = Pattern.compile("(0\\d{2}-\\d{8}(-\\d{1,4})?)|(0\\d{3}-\\d{7,8}(-\\d{1,4})?)");
+        // 创建匹配给定输入与此模式的匹配器。
+        matcher = pattern.matcher(str);
+        //查找字符串中是否有符合的子字符串
+        while(matcher.find()){
+            //查找到符合的即输出
+            replacement = replacement.replace(matcher.group(), "***********");
+        }
+        return  replacement;
+    }
+
 }

@@ -2,6 +2,7 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
+import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.TransLogAccessor;
@@ -54,7 +55,7 @@ public class CheckVinInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original checkVin request");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_CHECKVIN_REQUEST);
 
             JSONObject checkVinResponse;
             if (VinBrandCache.getInstance().getByKey(originalRequest.getVin())!=null) {
@@ -75,7 +76,7 @@ public class CheckVinInterface {
                 antRequest.setSign(EncryptUtil.sign(antRequest, PropertyUtil.readValue("app.secret")));
 
                 logger.info("Request to source with: {}", antRequest.toString());
-                TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), "source checkVin request");
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, antRequest.toString(), LogType.ANTQUEEN_CHECKVIN_REQUEST);
 
                 String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
                 webResource = restClient.resource(url);
@@ -83,7 +84,7 @@ public class CheckVinInterface {
 
                 checkVinResponse = response.getEntity(JSONObject.class);
                 logger.info("Got response: {}", checkVinResponse.toJSONString());
-                TransLogAccessor.getInstance().AddTransLog(originalRequest, checkVinResponse.toJSONString(), "source checkVin response");
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, checkVinResponse.toJSONString(), LogType.ANTQUEEN_CHECKVIN_RESPONSE);
             }
             overwriteBrandPrice(originalRequest, checkVinResponse);
 

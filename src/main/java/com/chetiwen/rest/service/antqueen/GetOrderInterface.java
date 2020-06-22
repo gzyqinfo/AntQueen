@@ -2,11 +2,13 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
+import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.object.antqueen.AntOrderResponse;
+import com.chetiwen.object.antqueen.AntOrderResult;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
 import com.chetiwen.util.EncryptUtil;
@@ -54,7 +56,7 @@ public class GetOrderInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), "original getOrder request");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_GETORDER_REQUEST);
 
             String sourceOrderNo = originalRequest.getOrderId();
             if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
@@ -75,7 +77,9 @@ public class GetOrderInterface {
                     AntOrderResponse orderResponse = JSONObject.parseObject(order.getResponseContent(), AntOrderResponse.class);
                     orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
                     orderResponse.getData().setMobilUrl(null);
-                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/web/onlyForWebUser"); //TODO reset url
+                    orderResponse.getData().setPcUrl(null);
+//                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
+                    replacePhoneNumber(orderResponse);
                     logger.info("Return OK. {}", orderResponse.toString());
                     return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
                 }
@@ -84,7 +88,7 @@ public class GetOrderInterface {
             JSONObject antResponse = askSource(requestObject, originalRequest, sourceOrderNo);
 
             logger.info("get ant response: {}", antResponse.toJSONString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), "source getOrder response");
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), LogType.ANTQUEEN_GETORDER_RESPONSE);
 
             if ("0".equals(antResponse.get("code").toString())) {
                 if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(sourceOrderNo)){
@@ -97,7 +101,10 @@ public class GetOrderInterface {
                 AntOrderResponse orderResponse = JSONObject.parseObject(antResponse.toJSONString(), AntOrderResponse.class);
                 orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
                 orderResponse.getData().setMobilUrl(null);
-                orderResponse.getData().setPcUrl("http://ctw.che9000.com/web/onlyForWebUser");
+//                orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
+                orderResponse.getData().setPcUrl(null);
+                replacePhoneNumber(orderResponse);
+
 
                 logger.info("finish processing and return ok. {}", JSONObject.toJSONString(orderResponse));
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
@@ -127,6 +134,16 @@ public class GetOrderInterface {
         }
     }
 
+    public void replacePhoneNumber(AntOrderResponse orderResponse) {
+        if (orderResponse.getData().getRecords() != null) {
+            for (AntOrderResult orderResult : orderResponse.getData().getRecords()) {
+                if (orderResult.getOther() != null) {
+                    orderResult.setOther(EncryptUtil.replacePhoneNumber(orderResult.getOther()));
+                }
+            }
+        }
+    }
+
     public JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
         JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
@@ -136,7 +153,7 @@ public class GetOrderInterface {
         jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
 
         logger.info("Request to source with: {}", jsonRequest.toString());
-        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), "source getOrder request");
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), LogType.ANTQUEEN_GETORDER_REQUEST);
 
         String url = PropertyUtil.readValue("source.url") + "/api/getOrderInfo";
         webResource = restClient.resource(url);

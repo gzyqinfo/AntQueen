@@ -1,4 +1,4 @@
-package com.chetiwen.rest.service.antqueen;
+package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.UserCache;
