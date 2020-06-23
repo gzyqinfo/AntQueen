@@ -30,6 +30,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 
 
 @Path("/api")
@@ -203,6 +204,7 @@ public class SaveOrderInterface {
         debitLog.setOrderNo(orderId);
         debitLog.setVin(request.getVin());
         debitLog.setFeeType("已计费");
+        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis()));
         VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
         if (vinBrand!=null) {
             debitLog.setBrandId(vinBrand.getBrandId());
