@@ -7,7 +7,7 @@ public class QucentOrderResponse {
     private String gid;
     private String userOrderId;
     private String msg;
-    private String code;
+    private int code;
     private String customerId;
     private String charge;
     private String productCode;
@@ -47,11 +47,11 @@ public class QucentOrderResponse {
         this.msg = msg;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(int code) {
         this.code = code;
     }
 

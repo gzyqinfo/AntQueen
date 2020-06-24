@@ -139,6 +139,9 @@ public class GetOrderInterface {
             for (AntOrderResult orderResult : orderResponse.getData().getRecords()) {
                 if (orderResult.getOther() != null) {
                     orderResult.setOther(EncryptUtil.replacePhoneNumber(orderResult.getOther()));
+                    orderResult.setContent(EncryptUtil.replacePhoneNumber(orderResult.getContent()));
+                    orderResult.setMaterial(EncryptUtil.replacePhoneNumber(orderResult.getMaterial()));
+                    orderResult.setType(EncryptUtil.replacePhoneNumber(orderResult.getType()));
                 }
             }
         }

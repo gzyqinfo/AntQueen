@@ -28,8 +28,12 @@ public class AntQueenTest {
     private final String partnerKey = "A3883A3D6336F291292A0A4FBD3F74E5";
 
     private String myUrlPrefix = "http://localhost:8090";
-    private final String myPartnerId = "12345678";
-    private final String myPartnerKey = "Keykkjiwihjij";
+//    private final String myPartnerId = "12345678";
+//    private final String myPartnerKey = "Keykkjiwihjij";
+
+//    private String myUrlPrefix = "http://www.chetiwen.com:8090";
+    private final String myPartnerId = "18689205939";
+    private final String myPartnerKey = "highRichHandsome";
 
     @BeforeClass
     public static void setUp() {
