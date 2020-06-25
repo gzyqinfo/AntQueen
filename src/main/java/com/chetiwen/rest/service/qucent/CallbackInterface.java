@@ -5,12 +5,15 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.GetOrderCache;
 import com.chetiwen.cache.OrderCallbackCache;
+import com.chetiwen.cache.OrderReportCache;
 import com.chetiwen.common.LogType;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.controll.DataConvertor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.db.model.TransactionLog;
+import com.chetiwen.object.antqueen.AntOrderResponse;
+import com.chetiwen.object.antqueen.OrderReportResponse;
 import com.chetiwen.object.qucent.QucentOrderResponse;
 import com.chetiwen.server.qucent.RSAUtil;
 import org.slf4j.Logger;
@@ -81,7 +84,16 @@ public class CallbackInterface {
             if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(qucentOrderResponse.getGid())) {
                 Order getOrder = new Order();
                 getOrder.setOrderNo(qucentOrderResponse.getGid());
-                getOrder.setResponseContent(content);
+                AntOrderResponse orderResponse = DataConvertor.convertToAntQueenOrder(qucentOrderResponse);
+                getOrder.setResponseContent(orderResponse.toString());
+                GetOrderCache.getInstance().addGetOrder(getOrder);
+            }
+
+            if (!OrderReportCache.getInstance().getOrderReportMap().containsKey(qucentOrderResponse.getGid())) {
+                Order getOrder = new Order();
+                getOrder.setOrderNo(qucentOrderResponse.getGid());
+                OrderReportResponse orderReportResponse = DataConvertor.convertToAntQueenReport(qucentOrderResponse);
+                getOrder.setResponseContent(orderReportResponse.toString());
                 GetOrderCache.getInstance().addGetOrder(getOrder);
             }
 
@@ -90,7 +102,6 @@ public class CallbackInterface {
                         OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getOrderNo());
             }
         }
-
 
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("code", 0);

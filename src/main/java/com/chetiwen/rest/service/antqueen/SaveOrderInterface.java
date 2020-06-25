@@ -38,7 +38,7 @@ public class SaveOrderInterface {
     private static Logger logger = LoggerFactory.getLogger(SaveOrderInterface.class);
     private static Client restClient;
     private static WebResource webResource;
-    private final float DEFAULT_FEE = 4.5f;
+    private final float DEFAULT_FEE = 5f;
 
     static {
         ClientConfig config = new DefaultClientConfig();

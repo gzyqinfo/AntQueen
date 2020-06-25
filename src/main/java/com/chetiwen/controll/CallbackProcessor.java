@@ -32,10 +32,7 @@ public class CallbackProcessor {
                     Order order = GetOrderCache.getInstance().getByKey(orderNo);
 
                     String callbackContent = order.getResponseContent();
-                    if (orderNo.length() > 20) { // Qucent order
-                        AntOrderResponse orderResponse = DataConvertor.convertToAntQueenOrder(JSONObject.parseObject(order.getResponseContent(), QucentOrderResponse.class));
-                        callbackContent = JSONObject.toJSONString(orderResponse.toString());
-                    }
+//
 
                     ClientConfig config = new DefaultClientConfig();
                     config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);

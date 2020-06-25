@@ -28,12 +28,12 @@ public class AntQueenTest {
     private final String partnerKey = "A3883A3D6336F291292A0A4FBD3F74E5";
 
     private String myUrlPrefix = "http://localhost:8090";
-//    private final String myPartnerId = "12345678";
-//    private final String myPartnerKey = "Keykkjiwihjij";
+    private final String myPartnerId = "12345678";
+    private final String myPartnerKey = "Keykkjiwihjij";
 
 //    private String myUrlPrefix = "http://www.chetiwen.com:8090";
-    private final String myPartnerId = "18689205939";
-    private final String myPartnerKey = "highRichHandsome";
+//    private final String myPartnerId = "18689205939";
+//    private final String myPartnerKey = "highRichHandsome";
 
     @BeforeClass
     public static void setUp() {
@@ -67,7 +67,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LBVKY9103KSR90425");
+        json.put("vin", "LBV8V3107GMF41165");
         json.put("sign", EncryptUtil.sign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
         System.out.println(json);
 

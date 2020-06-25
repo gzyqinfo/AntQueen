@@ -96,20 +96,7 @@ public class UserResource {
     public Response postUser(User user) throws Exception {
         logger.info("Received post user data request. user: {}", user);
 
-//        String partnerKey;
-//        long partnerId;
-//
-//        do {
-//            partnerId = (long)(Math.random()*900000000)+100000000;
-//            partnerKey = Base64.getEncoder().encodeToString(String.valueOf(partnerId*1234).getBytes("utf-8"));
-//        } while (UserCache.getInstance().getUserMap().containsKey(String.valueOf(partnerId)));
-//
-//        user.setPartnerId(String.valueOf(partnerId));
-//        user.setPartnerKey(partnerKey);
-
         UserCache.getInstance().addUser(user);
-
-//        return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" created successfully. Partner ID: "+partnerId+"; Partner Key: "+partnerKey +" .Balance："+user.getBalance()).build();
         return Response.status(Response.Status.OK).entity(user.toString()).build();
     }
 
