@@ -23,8 +23,8 @@ public class DemoTest {
     private static WebResource webResource;
 
     private String myUrlPrefix = "http://www.chetiwen.com:8090";
-    private final String myPartnerId = "18689205939";
-    private final String myPartnerKey = "highRichHandsome";
+    private final String myPartnerId = "test";
+    private final String myPartnerKey = "chetiwen";
 
     @BeforeClass
     public static void setUp() {

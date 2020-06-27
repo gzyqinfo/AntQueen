@@ -1,9 +1,10 @@
-package com.chetiwen.rest.service.antqueen;
+package com.chetiwen.rest.service.qucent;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
 import com.chetiwen.common.LogType;
 import com.chetiwen.controll.Authentication;
+import com.chetiwen.controll.DataConvertor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.Order;
@@ -11,6 +12,7 @@ import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
 import com.chetiwen.object.antqueen.OrderReportRepairDetail;
 import com.chetiwen.object.antqueen.OrderReportResponse;
+import com.chetiwen.object.qucent.QucentOrderResponse;
 import com.chetiwen.util.EncryptUtil;
 import com.chetiwen.util.PropertyUtil;
 import com.sun.jersey.api.client.Client;
@@ -30,7 +32,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 
-@Path("/api")
+@Path("/api/ctw")
 public class OrderReportInterface {
     private static Logger logger = LoggerFactory.getLogger(OrderReportInterface.class);
     private static Client restClient;
@@ -74,46 +76,15 @@ public class OrderReportInterface {
                 logger.info("there is cached order");
                 Order order = OrderReportCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
-                    OrderReportResponse orderReport = JSONObject.parseObject(order.getResponseContent(), OrderReportResponse.class);
+                    OrderReportResponse orderReport = DataConvertor.convertToAntQueenReport(JSONObject.parseObject(order.getResponseContent(), QucentOrderResponse.class));
                     resetOrderReport(originalRequest, orderReport);
                     logger.info("Return OK. {}", orderReport.toString());
                     return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
                 }
             }
-            JSONObject antResponse = askSource(requestObject, originalRequest, sourceOrderNo);
 
-            logger.info("get ant response: {}", antResponse.toJSONString());
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), LogType.ANTQUEEN_ORDERREP_RESPONSE);
-
-            if ("0".equals(antResponse.get("code").toString())) {
-                OrderReportResponse orderReport = JSONObject.parseObject(antResponse.toJSONString(), OrderReportResponse.class);
-                resetOrderReport(originalRequest, orderReport);
-
-                if (!OrderReportCache.getInstance().getOrderReportMap().containsKey(sourceOrderNo)){
-                    Order getOrder = new Order();
-                    getOrder.setOrderNo(sourceOrderNo);
-                    getOrder.setVin(String.valueOf(orderReport.getData().getVin()));
-                    getOrder.setResponseContent(antResponse.toJSONString());
-                    OrderReportCache.getInstance().addOrderReport(getOrder);
-                }
-                logger.info("finish processing and return ok. {}", orderReport.toString());
-                return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
-            } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
-                //对已收款退费，同时不再支持该订单的查询
-                String partnerId = originalRequest.getPartnerId();
-                String debitKey = partnerId+"/"+originalRequest.getOrderId();;
-                DebitLog debitLog = DebitLogCache.getInstance().getDebitLogMap().get(debitKey);
-                if (debitLog != null) {
-                    float debitFee = debitLog.getDebitFee();
-                    UserCache.getInstance().getByKey(partnerId).setBalance(UserCache.getInstance().getByKey(partnerId).getBalance()+debitFee);
-                    UserCache.getInstance().updateUser(UserCache.getInstance().getByKey(partnerId));
-                    logger.info("Add debitFee :{} back to user {}'s balance", debitFee, partnerId);
-
-                    DebitLogCache.getInstance().delDebitLog(debitKey);
-                    SaveOrderCache.getInstance().delSaveOrder(debitKey.split("/")[1]);
-                }
-            }
-            return Response.status(Response.Status.OK).entity(antResponse.toJSONString()).build();
+            AntResponse response = Authentication.genAntResponse(300018, "订单查询中", logger);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
 
         } catch (Exception e) {
             logger.error("Error: {}",e.getMessage());
@@ -137,22 +108,6 @@ public class OrderReportInterface {
                 repairDetail.setMaterial(EncryptUtil.replacePhoneNumber(repairDetail.getMaterial()));
             }
         }
-    }
-
-    public JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
-        JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
-        jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
-        jsonRequest.put("orderId", Integer.valueOf(sourceOrderNo));
-        jsonRequest.remove("sign");
-        jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
-
-        logger.info("Request to source with: {}", jsonRequest.toString());
-        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), LogType.ANTQUEEN_ORDERREP_REQUEST);
-
-        String url = PropertyUtil.readValue("source.url") + "/api/getReportDetectData";
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,jsonRequest);
-        return response.getEntity(JSONObject.class);
     }
 
 

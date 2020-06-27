@@ -101,6 +101,8 @@ public class CallbackInterface {
                 new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getUrl(),
                         OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getOrderNo());
             }
+        } else {
+            //TODO: 对已收款退费，同时不再支持该订单的查询
         }
 
         JSONObject jsonResponse = new JSONObject();

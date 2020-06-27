@@ -22,4 +22,5 @@ public class LogType {
 
     public static final String QUCENT_CALLBACK ="QUCENT_CALLBACK";
     public static final String QUCENT_QUERYVIN_REQUEST ="QUCENT_QUERYVIN_REQUEST";
+    public static final String QUCENT_QUERYVIN_RESPONSE ="QUCENT_QUERYVIN_REQUEST";
 }
