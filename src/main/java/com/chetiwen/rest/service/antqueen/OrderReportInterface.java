@@ -50,20 +50,20 @@ public class OrderReportInterface {
         logger.info("Received Get Order Report request with : {}", requestObject);
 
         try {
-            if (!Authentication.jsonSign(requestObject)) {
-                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
-                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
-            }
+//            if (!Authentication.jsonSign(requestObject)) {
+//                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
+//                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+//            }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_ORDERREP_REQUEST);
 
             String sourceOrderNo = originalRequest.getOrderId();
-            if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
-                logger.info("No debit record for {} with order : {}", originalRequest.getPartnerId(), sourceOrderNo);
-                AntResponse response = Authentication.genAntResponse(1200, "无效订单号", logger);
-                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
-            }
+//            if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
+//                logger.info("No debit record for {} with order : {}", originalRequest.getPartnerId(), sourceOrderNo);
+//                AntResponse response = Authentication.genAntResponse(1200, "无效订单号", logger);
+//                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+//            }
 
             if (OrderMapCache.getInstance().getOrderMap().containsKey(originalRequest.getOrderId())) {
                 logger.info("there is replaced order");

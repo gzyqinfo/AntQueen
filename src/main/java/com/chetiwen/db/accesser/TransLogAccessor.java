@@ -53,8 +53,8 @@ public class TransLogAccessor {
 
     public void AddTransLog(AntRequest antRequest, String content, String logType) throws DBAccessException {
         TransactionLog log = new TransactionLog();
-        log.setPartnerId(antRequest.getPartnerId());
-        log.setUserName(UserCache.getInstance().getByKey(antRequest.getPartnerId()).getUserName());
+        log.setPartnerId(antRequest.getPartnerId()==null?"UNKNOWN":antRequest.getPartnerId());
+        log.setUserName(antRequest.getPartnerId()==null?"UNKNOWN":UserCache.getInstance().getByKey(antRequest.getPartnerId()).getUserName());
         log.setTransactionContent(content);
         log.setLogType(logType);
         addLog(log);
