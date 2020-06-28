@@ -31,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 
 @Path("/api")
@@ -253,12 +254,12 @@ public class SaveOrderInterface {
     }
 
     private String generateOrderNo() throws Exception {
-        int newID;
+        String newID;
         do {
-            newID = (int)(Math.random()*90000000)+10000000;
-        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(String.valueOf(newID)));
+            newID = UUID.randomUUID().toString().toUpperCase().replace("-", "");
+        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(newID));
 
-        return String.valueOf(newID);
+        return newID;
     }
 
 }
