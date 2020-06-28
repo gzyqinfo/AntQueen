@@ -94,7 +94,7 @@ public class CallbackInterface {
                 getOrder.setOrderNo(qucentOrderResponse.getGid());
                 OrderReportResponse orderReportResponse = DataConvertor.convertToAntQueenReport(qucentOrderResponse);
                 getOrder.setResponseContent(orderReportResponse.toString());
-                GetOrderCache.getInstance().addGetOrder(getOrder);
+                OrderReportCache.getInstance().addOrderReport(getOrder);
             }
 
             if (OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()) != null) {
