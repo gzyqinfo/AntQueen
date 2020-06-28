@@ -250,9 +250,9 @@ public class SaveOrderInterface {
         }
 
         TransactionLog responseLog = new TransactionLog();
-        log.setLogType(LogType.QUCENT_QUERYVIN_RESPONSE);
-        log.setUserName(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getUserName());
-        log.setPartnerId(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getPartnerId());
+        responseLog.setLogType(LogType.QUCENT_QUERYVIN_RESPONSE);
+        responseLog.setUserName(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getUserName());
+        responseLog.setPartnerId(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getPartnerId());
         responseLog.setTransactionContent(encryptResult);
         TransLogAccessor.getInstance().addLog(responseLog);
 
