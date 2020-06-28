@@ -70,17 +70,17 @@ public class GetOrderInterface {
                 Order order = GetOrderCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
                     AntOrderResponse orderResponse = DataConvertor.convertToAntQueenOrder(JSONObject.parseObject(order.getResponseContent(), QucentOrderResponse.class));
-                    orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
+                    orderResponse.getData().setOrderId(originalRequest.getOrderId());
                     orderResponse.getData().setMobilUrl(null);
                     orderResponse.getData().setPcUrl(null);
-//                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
+                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
                     replacePhoneNumber(orderResponse);
                     logger.info("Return OK. {}", orderResponse.toString());
                     return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();
                 }
             }
             AntResponse response = Authentication.genAntResponse(300018, "订单查询中", logger);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
+            return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
 
         }  catch (Exception e) {
             logger.error("Error: {}",e.getMessage());

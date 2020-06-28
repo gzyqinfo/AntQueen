@@ -106,8 +106,8 @@ public class QucentTest {
     }
 
     @Test
-    public void testMyGetOrder() throws Exception {
-        String url = myUrlPrefix+"/api/getOrder";
+    public void testQucentGetOrder() throws Exception {
+        String url = myUrlPrefix+"/api/ctw/getOrder";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);

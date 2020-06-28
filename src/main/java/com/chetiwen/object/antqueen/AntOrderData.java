@@ -6,17 +6,17 @@ import java.util.List;
 
 public class AntOrderData {
 
-    private int orderId;
+    private String orderId;
     private String mobilUrl;
     private String pcUrl;
     private List<AntOrderResult> records;
 
 
-    public int getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(int orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

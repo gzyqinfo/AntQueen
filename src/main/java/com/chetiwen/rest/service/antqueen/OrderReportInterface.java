@@ -125,9 +125,8 @@ public class OrderReportInterface {
     }
 
     private void resetOrderReport(AntRequest originalRequest, OrderReportResponse orderReport) {
-        orderReport.getData().setReportNo(Integer.valueOf(originalRequest.getOrderId()).intValue());
-//                    orderReportData.put("reportUrl", "http://ctw.che9000.com/#/showOrder?orderNo="+originalRequest.getOrderId());
-        orderReport.getData().setReportUrl(null);
+        orderReport.getData().setReportNo(originalRequest.getOrderId());
+        orderReport.getData().setReportUrl("http://ctw.che9000.com/#/showOrder?orderNo="+originalRequest.getOrderId());
         orderReport.getData().setMakeReportDate(originalRequest.getTs());
         if (orderReport.getData().getNormalRepairRecords() != null) {
             for (OrderReportRepairDetail repairDetail : orderReport.getData().getNormalRepairRecords()) {

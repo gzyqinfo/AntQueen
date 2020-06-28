@@ -75,10 +75,9 @@ public class GetOrderInterface {
                 Order order = GetOrderCache.getInstance().getByKey(sourceOrderNo);
                 if (order !=null) {
                     AntOrderResponse orderResponse = JSONObject.parseObject(order.getResponseContent(), AntOrderResponse.class);
-                    orderResponse.getData().setOrderId(Integer.valueOf(originalRequest.getOrderId()));
+                    orderResponse.getData().setOrderId(originalRequest.getOrderId());
                     orderResponse.getData().setMobilUrl(null);
-                    orderResponse.getData().setPcUrl(null);
-//                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
+                    orderResponse.getData().setPcUrl("http://ctw.che9000.com/#/showOrder?orderNo="+orderResponse.getData().getOrderId());
                     replacePhoneNumber(orderResponse);
                     logger.info("Return OK. {}", orderResponse.toString());
                     return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(orderResponse)).build();

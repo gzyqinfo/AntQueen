@@ -33,7 +33,7 @@ public class DataConvertor {
 
         orderReportData.setMakeReportDate((int) (System.currentTimeMillis()/1000));
         orderReportData.setBrandName(qucentOrder.getData().getBasic().getBrand());
-        orderReportData.setReportNo(Integer.valueOf(qucentOrder.getUserOrderId()));
+        orderReportData.setReportNo(qucentOrder.getUserOrderId());
         orderReportData.setCarAge(qucentOrder.getData().getBasic().getYear());
         orderReportData.setLastMainTime(qucentOrder.getData().getResume().getLastdate());
         orderReportData.setVin(qucentOrder.getData().getBasic().getVin());
@@ -184,7 +184,7 @@ public class DataConvertor {
         AntOrderData antOrderData = new AntOrderData();
         antQueenOrder.setData(antOrderData);
 
-        antOrderData.setOrderId(Integer.valueOf(qucentOrder.getUserOrderId()));
+        antOrderData.setOrderId(qucentOrder.getUserOrderId());
 
         if (qucentOrder.getData().getMc() != null) {
             List<AntOrderResult> antOrderResults = new ArrayList<>();

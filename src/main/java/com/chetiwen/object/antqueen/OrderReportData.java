@@ -18,7 +18,7 @@ public class OrderReportData {
     private OrderReportState state;
     private List<OrderReportMileage> mileage_data;
     private List<OrderReportRepairDetail> normalRepairRecords;
-    private int reportNo;
+    private String reportNo;
 
     public OrderReportPartDetail getPart_detail() {
         return part_detail;
@@ -124,11 +124,11 @@ public class OrderReportData {
         this.normalRepairRecords = normalRepairRecords;
     }
 
-    public int getReportNo() {
+    public String getReportNo() {
         return reportNo;
     }
 
-    public void setReportNo(int reportNo) {
+    public void setReportNo(String reportNo) {
         this.reportNo = reportNo;
     }
 
