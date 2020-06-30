@@ -96,4 +96,22 @@ public class DebitLogAccessor {
         }
         logger.info("deleted debit_log record");
     }
+
+    public void updateFeeType(DebitLog debitLog) throws DBAccessException {
+        logger.info("Received update debitLog request. updated debitLog: {}", debitLog);
+
+        String sql = new StringBuilder().append("update debit_log ")
+                .append("set fee_type = \"").append(debitLog.getFeeType()).append("\"")
+                .append(" where partner_id = \"").append(debitLog.getPartnerId()).append("\"")
+                .append(" and order_no = \"").append(debitLog.getOrderNo()).append("\"")
+                .toString();
+        Connection connection = ConnectionPool.getConnection();
+        try {
+            SqlHelper.executeUpdate (connection, sql);
+            connection.close();
+        } catch (SQLException e) {
+            throw new DBAccessException(connection, e);
+        }
+        logger.info("updated debitLog fee_type to : {} for partner_id/order_no : {}/{}", debitLog.getFeeType(), debitLog.getPartnerId(), debitLog.getOrderNo());
+    }
 }

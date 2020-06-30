@@ -2,7 +2,7 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
-import com.chetiwen.common.LogType;
+import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.ConnectionPool;
@@ -62,7 +62,7 @@ public class SaveOrderInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_QUERYVIN_REQUEST);
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), ConstData.CLIENT_QUERYVIN_REQUEST);
 
             if (!canQueryVin(requestObject)) {
                 AntResponse response = Authentication.genAntResponse(1101, "数据维护中", logger);
@@ -104,7 +104,7 @@ public class SaveOrderInterface {
                 JSONObject antResponse = askSource(requestObject, originalRequest);
 
                 logger.info("get ant response: {}", antResponse.toJSONString());
-                TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), LogType.ANTQUEEN_QUERYVIN_RESPONSE);
+                TransLogAccessor.getInstance().AddTransLog(originalRequest, antResponse.toJSONString(), ConstData.ANTQUEEN_QUERYVIN_RESPONSE);
 
                 if ("0".equals(antResponse.get("code").toString())) {
                     //cache it
@@ -167,7 +167,7 @@ public class SaveOrderInterface {
         jsonRequest.put("sign", EncryptUtil.sign(jsonRequest.toJSONString(), PropertyUtil.readValue("app.secret")));
         jsonRequest.put("callbackUrl", notEncodedUrl); //after sign, need to pass not encoded url to source
         logger.info("Request to source with: {}", jsonRequest.toString());
-        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), LogType.ANTQUEEN_QUERYVIN_REQUEST);
+        TransLogAccessor.getInstance().AddTransLog(originalRequest, jsonRequest.toString(), ConstData.ANTQUEEN_QUERYVIN_REQUEST);
 
         String url = PropertyUtil.readValue("source.url") + "/api/queryByVin";
         webResource = restClient.resource(url);
@@ -229,7 +229,7 @@ public class SaveOrderInterface {
             originalRequest.setSign(EncryptUtil.sign(originalRequest, PropertyUtil.readValue("app.secret")));
 
             logger.info("Request to source with: {}", originalRequest.toString());
-            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), originalRequest.toString(), "source checkVin request");
+            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), originalRequest.toString(), ConstData.ANTQUEEN_CHECKVIN_REQUEST);
 
             String url = PropertyUtil.readValue("source.url") + "/api/checkVin";
             webResource = restClient.resource(url);
@@ -237,7 +237,7 @@ public class SaveOrderInterface {
 
             AntResponse sourceResponse = response.getEntity(AntResponse.class);
             logger.info("Got response: {}", sourceResponse);
-            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), sourceResponse.toString(), "source checkVin response");
+            TransLogAccessor.getInstance().AddTransLog(JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class), sourceResponse.toString(), ConstData.ANTQUEEN_CHECKVIN_RESPONSE);
 
             if (sourceResponse.getCode() == 1106) {
                 if (VinBrandCache.getInstance().getByKey(originalRequest.getVin()) == null) {

@@ -65,4 +65,11 @@ public class DebitLogCache {
         DebitLogAccessor.getInstance().delLog(partnerId, orderNo);
         keyMap.remove(debitKey);
     }
+
+    public void updateDebitLogFeeType(DebitLog debitLog) throws DBAccessException {
+        logger.info("update debitLog cache: {}", debitLog);
+
+        DebitLogAccessor.getInstance().updateFeeType(debitLog);
+        keyMap.put(debitLog.getPartnerId()+"/"+debitLog.getOrderNo(), debitLog);
+    }
 }

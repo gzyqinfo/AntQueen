@@ -75,7 +75,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "YV1CT985881450469");
+        json.put("vin", "WBACR6102L9D22000");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));

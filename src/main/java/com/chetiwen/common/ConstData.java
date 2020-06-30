@@ -1,7 +1,8 @@
 package com.chetiwen.common;
 
-public class LogType {
+public class ConstData {
 
+    // LOG TYPE
     public static final String CLIENT_CHECKVIN_REQUEST ="CLIENT_CHECKVIN_REQUEST";
     public static final String CLIENT_QUERYVIN_REQUEST ="CLIENT_QUERYVIN_REQUEST";
     public static final String CLIENT_GETORDER_REQUEST ="CLIENT_GETORDER_REQUEST";
@@ -23,4 +24,15 @@ public class LogType {
     public static final String QUCENT_CALLBACK ="QUCENT_CALLBACK";
     public static final String QUCENT_QUERYVIN_REQUEST ="QUCENT_QUERYVIN_REQUEST";
     public static final String QUCENT_QUERYVIN_RESPONSE ="QUCENT_QUERYVIN_REQUEST";
+
+
+    //FEE TYPE
+    public static final String FEE_TYPE_TRUE ="已计费";
+    public static final String FEE_TYPE_FALSE ="待计费";
+
+    //DATA SOURCE
+    public static final String DATA_SOURCE_ALL ="ALL";
+    public static final String DATA_SOURCE_ANTQUEEN ="ANTQUEEN";
+    public static final String DATA_SOURCE_QUCENT ="QUCENT";
+
 }

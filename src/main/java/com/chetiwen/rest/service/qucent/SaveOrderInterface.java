@@ -2,24 +2,15 @@ package com.chetiwen.rest.service.qucent;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
-import com.chetiwen.common.LogType;
+import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
-import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
 import com.chetiwen.server.qucent.*;
-import com.chetiwen.util.EncryptUtil;
-import com.chetiwen.util.PropertyUtil;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
@@ -29,9 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URLEncoder;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -39,7 +28,7 @@ import java.util.*;
 @Path("/api/ctw")
 public class SaveOrderInterface {
     private static Logger logger = LoggerFactory.getLogger(SaveOrderInterface.class);
-    private final float DEFAULT_FEE = 5f;
+    public static final float DEFAULT_FEE = 5f;
 
     private static RSAUtil rsaUtil = new RSAUtil();
     private static String CUSTOMER_ID = "0f092952d9a2f7a0c0faea927e178396";
@@ -97,7 +86,7 @@ public class SaveOrderInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
-            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), LogType.CLIENT_QUERYVIN_REQUEST);
+            TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), ConstData.CLIENT_QUERYVIN_REQUEST);
 
             //debit
             float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
@@ -123,7 +112,7 @@ public class SaveOrderInterface {
 
                 logger.info("got from saveCache for vin: {}", originalRequest.getVin());
 
-                debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee);
+                debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_TRUE);
 
                 if (originalRequest.getCallbackUrl() != null) {
                     new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderNo);
@@ -152,13 +141,20 @@ public class SaveOrderInterface {
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
                     OrderMap orderMap = new OrderMap();
-                    orderMap.setReplaceOrderNo(generateOrderNo());
+                    orderMap.setReplaceOrderNo(qucentResponse.get("userOrderId").toString());
                     orderMap.setOrderNo(saveOrder.getOrderNo());
                     OrderMapCache.getInstance().addOrderMap(orderMap);
                     data.put("orderId", orderMap.getReplaceOrderNo());
 
+                    String feeType;
+                    if ("true".equals(String.valueOf(qucentResponse.get("charge")))) {
+                        feeType = ConstData.FEE_TYPE_TRUE;
+                    } else {
+                        feeType = ConstData.FEE_TYPE_FALSE;
+                    }
+
                     //debit
-                    debit(originalRequest, orderMap.getReplaceOrderNo(), balanceBeforeDebit, debitFee);
+                    debit(originalRequest, orderMap.getReplaceOrderNo(), balanceBeforeDebit, debitFee, feeType);
 
                     if (originalRequest.getCallbackUrl() != null) {
                         new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());
@@ -231,7 +227,7 @@ public class SaveOrderInterface {
         list.add(json8);
 
         TransactionLog log = new TransactionLog();
-        log.setLogType(LogType.QUCENT_QUERYVIN_REQUEST);
+        log.setLogType(ConstData.QUCENT_QUERYVIN_REQUEST);
         log.setUserName(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getUserName());
         log.setPartnerId(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getPartnerId());
         log.setTransactionContent(list.toString());
@@ -247,7 +243,7 @@ public class SaveOrderInterface {
         }
 
         TransactionLog responseLog = new TransactionLog();
-        responseLog.setLogType(LogType.QUCENT_QUERYVIN_RESPONSE);
+        responseLog.setLogType(ConstData.QUCENT_QUERYVIN_RESPONSE);
         responseLog.setUserName(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getUserName());
         responseLog.setPartnerId(UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getPartnerId());
         responseLog.setTransactionContent(encryptResult);
@@ -259,16 +255,8 @@ public class SaveOrderInterface {
     private float getDebitFee(String partnerId, String vin) throws DBAccessException {
         float debitFee = 0f;
 
-        VinBrand vinBrand = VinBrandCache.getInstance().getByKey(vin);
-        if (vinBrand != null) {
-            String brandId = vinBrand.getBrandId();
-            if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+brandId)) {
-                debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+brandId).getPrice();
-            } else if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")) {
-                debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+"0").getPrice();
-            } else if (BrandCache.getInstance().getById(brandId) != null) {
-                debitFee = BrandCache.getInstance().getById(brandId).getPrice();
-            }
+        if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")) {
+            debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+"0").getPrice();
         }
 
         //当找不到计费规则或出现0计费时
@@ -278,25 +266,31 @@ public class SaveOrderInterface {
         return debitFee;
     }
 
-    private void debit(AntRequest request, String orderId, float balanceBeforeDebit, float debitFee) throws DBAccessException {
+    private void debit(AntRequest request, String orderId, float balanceBeforeDebit, float debitFee, String feeType) throws DBAccessException {
+
         DebitLog debitLog = new DebitLog();
+        debitLog.setFeeType(feeType);
         debitLog.setPartnerId(request.getPartnerId());
         debitLog.setBalanceBeforeDebit(balanceBeforeDebit);
         debitLog.setDebitFee(debitFee);
         debitLog.setOrderNo(orderId);
         debitLog.setVin(request.getVin());
-        debitLog.setFeeType("已计费");
-        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis() - 8 * 3600));
+        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis()));
         VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
         if (vinBrand!=null) {
             debitLog.setBrandId(vinBrand.getBrandId());
             debitLog.setBrandName(vinBrand.getBrandName());
+        } else {
+            debitLog.setBrandId("0");
+            debitLog.setBrandName("普通品牌");
         }
         DebitLogCache.getInstance().addDebitLog(debitLog);
 
-        User updatedUser = UserCache.getInstance().getByKey(request.getPartnerId());
-        updatedUser.setBalance(balanceBeforeDebit - debitFee);
-        UserCache.getInstance().updateUser(updatedUser);
+        if (ConstData.FEE_TYPE_TRUE.equals(feeType)) {
+            User updatedUser = UserCache.getInstance().getByKey(request.getPartnerId());
+            updatedUser.setBalance(balanceBeforeDebit - debitFee);
+            UserCache.getInstance().updateUser(updatedUser);
+        }
     }
 
 

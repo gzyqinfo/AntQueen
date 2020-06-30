@@ -1,6 +1,5 @@
 package com.chetiwen.db.model;
 
-import java.sql.Date;
 
 public class User {
     private String userName;
@@ -8,6 +7,7 @@ public class User {
     private String partnerKey;
     private float balance;
     private int isValid;
+    private String dataSource;
 
     public String getUserName() {
         return userName;
@@ -49,6 +49,14 @@ public class User {
         this.isValid = isValid;
     }
 
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -57,6 +65,7 @@ public class User {
                 ", partnerKey='" + partnerKey + '\'' +
                 ", balance=" + balance +
                 ", isValid=" + isValid +
+                ", dataSource='" + dataSource + '\'' +
                 '}';
     }
 }

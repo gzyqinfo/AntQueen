@@ -20,9 +20,10 @@ public class QucentTest {
     private static Client restClient;
     private static WebResource webResource;
 
-    private String myUrlPrefix = "http://www.chetiwen.com:8139";
-    private final String myPartnerId = "18689205939";
-    private final String myPartnerKey = "highRichHandsome";
+    private String myUrlPrefix = "http://localhost:8090";
+//    private String myUrlPrefix = "http://www.chetiwen.com:8139";
+    private final String myPartnerId = "test";
+    private final String myPartnerKey = "chetiwen";
 
     @BeforeClass
     public static void setUp() {
@@ -31,22 +32,6 @@ public class QucentTest {
         restClient = Client.create(config);
     }
 
-    @Test
-    public void testAuthentication() throws Exception {
-        String url = myUrlPrefix+"/api/authentication";
-
-        JSONObject json = new JSONObject();
-        int ts = (int)(System.currentTimeMillis()/1000);
-        json.put("ts", ts);
-        json.put("partnerId", myPartnerId);
-        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-        System.out.println(json.toJSONString());
-
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-        System.out.println(response.getEntity(Object.class));
-        assertEquals(200, response.getStatus());
-    }
 
     @Test
     public void testMyCheckVin() throws Exception {
@@ -55,29 +40,9 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LVSHCFDBXDE195142");
+        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json);
-
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-        System.out.println(response.getEntity(Object.class));
-        assertEquals(200, response.getStatus());
-    }
-
-    @Test
-    public void testMyQueryByVin() throws Exception {
-        String url = myUrlPrefix+"/api/queryByVin";
-
-        JSONObject json = new JSONObject();
-        int ts = (int)(System.currentTimeMillis()/1000);
-        json.put("ts", ts);
-        json.put("partnerId", myPartnerId);
-        json.put("vin", "YV1CT985881450469");
-//        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
-        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-//        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
-        System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);
         ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
@@ -93,7 +58,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LVSHCFDBXDE195142");
+        json.put("vin", "LVGEN56A9JG235183");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
@@ -113,7 +78,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 70660495);
+        json.put("orderId", "A124D53720ED41778A6398CFB1F569C2");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -123,22 +88,6 @@ public class QucentTest {
         assertEquals(200, response.getStatus());
     }
 
-    @Test
-    public void testMyGetBrands() throws Exception {
-        String url = myUrlPrefix+"/api/brand/list";
-
-        JSONObject json = new JSONObject();
-        int ts = (int)(System.currentTimeMillis()/1000);
-        json.put("ts", ts);
-        json.put("partnerId", myPartnerId);
-        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-        System.out.println(json.toJSONString());
-
-        webResource = restClient.resource(url);
-        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
-        System.out.println(response.getEntity(Object.class));
-        assertEquals(200, response.getStatus());
-    }
 
     @Test
     public void testMyGetBalance() throws Exception {
@@ -157,14 +106,14 @@ public class QucentTest {
     }
 
     @Test
-    public void testMyGetOrderReport() throws Exception {
+    public void testQucentGetOrderReport() throws Exception {
         String url = myUrlPrefix+"/api/getOrderReport";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464661425);
+        json.put("orderId", "A124D53720ED41778A6398CFB1F569C2");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 

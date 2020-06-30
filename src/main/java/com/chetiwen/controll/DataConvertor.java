@@ -132,7 +132,7 @@ public class DataConvertor {
             orderReportState.setBodyPartState(0);
         }
         //外观
-        if ("0".equals(qucentOrder.getData().getResume().getWgj())) {
+        if ("".equals(qucentOrder.getData().getResume().getWgj())) {
             orderReportState.setExteriorState(1);
         } else {
             orderReportState.setExteriorState(0);

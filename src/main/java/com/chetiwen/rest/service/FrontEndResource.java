@@ -134,7 +134,7 @@ public class FrontEndResource {
             data.put("list", JSONObject.toJSONString(dataList));
             jsonObject.put("data", data);
 
-            logger.info("return historical orders list for partner : {}", originalRequest.getPartnerId());
+            logger.info("return {} rows historical orders list for partner : {}", dataList.size(), originalRequest.getPartnerId());
             return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
         } catch (Exception e) {
             logger.error("Error: {}", e.getMessage());

@@ -2,7 +2,7 @@ package com.chetiwen.rest.service.antqueen;
 
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
-import com.chetiwen.common.LogType;
+import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
@@ -33,7 +33,7 @@ public class CallbackInterface {
         logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Callback request from AntQueen : {}", requestObject);
         TransactionLog log = new TransactionLog();
-        log.setLogType(LogType.ANTQUEEN_CALLBACK);
+        log.setLogType(ConstData.ANTQUEEN_CALLBACK);
         log.setUserName("CALLBACK");
         log.setPartnerId("SYSTEM");
         log.setTransactionContent(requestObject.toString());

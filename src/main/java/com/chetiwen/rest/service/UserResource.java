@@ -1,6 +1,8 @@
 package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.cache.UserRateCache;
+import com.chetiwen.db.model.UserRate;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -27,16 +29,28 @@ public class UserResource {
     private static Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     @GET
-    @Path("/list")
+    @Path("/rate/{partnerId}/{brand_id}/{brand_name}/{price}")
     @Produces("application/json;charset=UTF-8")
-    public Response listAll() {
-        logger.info("Received User list request ");
-        try {
-            List<User> dataList = UserCache.getInstance().getUserMap().values()
-                    .stream().collect(Collectors.toList());
+    public Response userRate(@PathParam("partnerId") String partnerId,
+                             @PathParam("brand_id") String brandId,
+                             @PathParam("brand_name") String brandName,
+                             @PathParam("price") float price) {
+        logger.info("Received User request with partnerId {}, brandId:{}, brandName:{}, price:{} ", partnerId, brandId, brandName, price);
 
-            logger.info("returned {} row(s) data", dataList.size());
-            return Response.status(Response.Status.OK).entity(new JSONObject().toJSONString(dataList)).build();
+        UserRate userRate = new UserRate();
+        userRate.setPrice(price);
+        userRate.setBrandName(brandName);
+        userRate.setBrandId(brandId);
+        userRate.setPartnerId(partnerId);
+
+        try {
+            if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+brandId)) {
+                UserRateCache.getInstance().updateUserRate(userRate);
+            } else {
+                UserRateCache.getInstance().addUserRate(userRate);
+            }
+
+            return Response.status(Response.Status.OK).entity(new JSONObject().toJSONString(userRate)).build();
         } catch (DBAccessException e) {
             logger.error("Fail to connect to DataBase, error: {}", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -62,8 +76,7 @@ public class UserResource {
         }
     }
 
-
-    @PUT
+    @GET
     @Path("/charge/{partner_id}/{charge}")
     @Produces("application/json;charset=UTF-8")
     public Response userCharge(@PathParam("partner_id") String partnerId,
@@ -83,11 +96,61 @@ public class UserResource {
             UserCache.getInstance().updateUser(user);
         } catch (DBAccessException e) {
             logger.error("Fail to connect to DataBase . error: {}" , e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
         return Response.status(Response.Status.OK).entity("User: "+user.getUserName()+" balance now is ： "+user.getBalance()).build();
     }
 
+    @GET
+    @Path("/source/{partner_id}/{new_source}")
+    @Produces("application/json;charset=UTF-8")
+    public Response changeSource(@PathParam("partner_id") String partnerId,
+                                 @PathParam("new_source") String newSource) {
+        logger.info("Received change user data source request.  partner_id: {}, new_source {}",partnerId,  newSource);
+
+        User user;
+        try {
+            user = UserCache.getInstance().getByKey(partnerId)==null?UserCache.getInstance().getByName(partnerId):UserCache.getInstance().getByKey(partnerId);
+
+            if (user == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No such user!").build();
+            }
+
+            user.setDataSource(newSource);
+
+            UserCache.getInstance().updateUser(user);
+        } catch (DBAccessException e) {
+            logger.error("Fail to connect to DataBase . error: {}" , e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return Response.status(Response.Status.OK).entity(user.toString()).build();
+    }
+
+    @GET
+    @Path("/create/{user_name}/{user_id}/{user_key}/{balance}/{data_source}")
+    @Produces("application/json;charset=UTF-8")
+    public Response userCharge(@PathParam("user_name") String userName,
+                               @PathParam("user_id") String userId,
+                               @PathParam("user_key") String userKey,
+                               @PathParam("balance") float balance,
+                               @PathParam("data_source") String dataSource) {
+        logger.info("Received create user request. user_name:{}, user_id:{}, user_key:{}, balance:{},data_source:{}",userName,  userId, userKey, balance, dataSource);
+
+        User user = new User();
+        user.setUserName(userName);
+        user.setPartnerId(userId);
+        user.setPartnerKey(userKey);
+        user.setBalance(balance);
+        user.setIsValid(1);
+        user.setDataSource(dataSource);
+        try {
+            UserCache.getInstance().addUser(user);
+        } catch (DBAccessException e) {
+            logger.error("Fail to connect to DataBase . error: {}" , e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        }
+        return Response.status(Response.Status.OK).entity(user.toString()).build();
+    }
 
     @POST
     @Path("/post/new")
@@ -142,13 +205,16 @@ public class UserResource {
                 System.out.print("Input User Balance: ");
                 float balance = Float.valueOf(input.readLine());
                 user.setBalance(balance);
-
+                System.out.print("Input Data Source: ");
+                String dataSource = input.readLine();
+                user.setDataSource(dataSource);
 
                 System.out.println("The user to create is : ");
                 System.out.println("Name: " + userName);
                 System.out.println("Partner ID: " + partnerId);
                 System.out.println("Partner Key: " + partnerKey);
                 System.out.println("Balance: " + balance);
+                System.out.println("DataSource: " + dataSource);
                 System.out.println();
                 System.out.print("Is it correct ? (Y or N):");
                 String isCorrect = input.readLine();
@@ -176,7 +242,7 @@ public class UserResource {
                 if ("Y".equalsIgnoreCase(isCorrect)) {
                     String url = urlPrefix + "/charge/"+userName+"/"+charge;
                     webResource = restClient.resource(url);
-                    ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).put(ClientResponse.class);
+                    ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
                     System.out.println(response.getEntity(String.class));
                 } else {
                     System.out.println("Please choose again.");

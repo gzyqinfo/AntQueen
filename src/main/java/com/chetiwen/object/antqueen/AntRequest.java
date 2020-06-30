@@ -44,7 +44,7 @@ public class AntRequest {
     }
 
     public void setVin(String vin) {
-        this.vin = vin;
+        this.vin = (vin==null?null:vin.toUpperCase());
     }
 
     public int getSpecialBrand() {

@@ -29,7 +29,7 @@ public class UserAccessor {
     }
 
     public List<User> getAllUsers() throws DBAccessException{
-        logger.info("Get all User request");
+        logger.info("Get all Users request");
         Connection connection = ConnectionPool.getConnection();
         try {
             ResultSet rs = SqlHelper.executeQuery (connection, "select * from user");
@@ -41,6 +41,7 @@ public class UserAccessor {
                 user.setPartnerKey(rs.getString("partner_key"));
                 user.setUserName(rs.getString("user_name"));
                 user.setIsValid(rs.getInt("is_valid"));
+                user.setDataSource(rs.getString("data_source"));
 
                 list.add(user);
             }
@@ -55,8 +56,8 @@ public class UserAccessor {
     public void addUser(User user) throws DBAccessException {
         logger.info("Received add user data request. message type: {}", user.toString());
 
-        String sql = "insert into user(user_name, partner_id, partner_key, balance) " +
-                "values (?,?,?,?)";
+        String sql = "insert into user(user_name, partner_id, partner_key, balance, data_source) " +
+                "values (?,?,?,?,?)";
         Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -64,6 +65,7 @@ public class UserAccessor {
             preparedStatement.setString(2, user.getPartnerId());
             preparedStatement.setString(3, user.getPartnerKey());
             preparedStatement.setFloat(4, user.getBalance());
+            preparedStatement.setString(5, user.getDataSource());
             preparedStatement.executeUpdate();
             connection.close();
         } catch (SQLException e) {
@@ -78,6 +80,7 @@ public class UserAccessor {
         String sql = new StringBuilder().append("update user ")
                 .append("set user_name = \"").append(user.getUserName()).append("\"")
                 .append(", balance = ").append(user.getBalance())
+                .append(", data_source = \"").append(user.getDataSource()).append("\"")
                 .append(" where partner_id = \"").append(user.getPartnerId()).append("\"")
                 .toString();
         Connection connection = ConnectionPool.getConnection();
