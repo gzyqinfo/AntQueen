@@ -20,8 +20,8 @@ public class QucentTest {
     private static Client restClient;
     private static WebResource webResource;
 
-    private String myUrlPrefix = "http://localhost:8090";
-//    private String myUrlPrefix = "http://www.chetiwen.com:8139";
+//    private String myUrlPrefix = "http://localhost:8090";
+    private String myUrlPrefix = "http://www.chetiwen.com:8139";
     private final String myPartnerId = "test";
     private final String myPartnerKey = "chetiwen";
 
@@ -40,7 +40,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "ljdkaa247e0189327");
+        json.put("vin", "ls5a3abe4ja004944");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json);
 
@@ -58,7 +58,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "ljdkaa247e0189327");
+        json.put("vin", "ls5a3abe4ja004944");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));

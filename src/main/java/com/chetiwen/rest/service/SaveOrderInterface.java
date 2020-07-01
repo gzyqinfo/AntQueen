@@ -61,6 +61,7 @@ public class SaveOrderInterface {
                 JSONObject jsonObject = response.getEntity(JSONObject.class);
                 if (!String.valueOf(jsonObject.get("code").toString()).equals("0")) {
                     response = redirectTo(requestObject, qucentUrl);
+                    jsonObject = response.getEntity(JSONObject.class);
                 }
                 return Response.status(response.getStatus()).entity(jsonObject).build();
             } else if (user.getDataSource().toUpperCase().contains(ConstData.DATA_SOURCE_ANTQUEEN)) {
