@@ -31,7 +31,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.sql.Timestamp;
-import java.util.UUID;
 
 
 @Path("/api")
@@ -48,7 +47,7 @@ public class SaveOrderInterface {
     }
 
     @POST
-    @Path("/queryByVin")
+    @Path("/saveOrder")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
     public Response processRequest(Object requestObject)  {
@@ -74,7 +73,7 @@ public class SaveOrderInterface {
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
                 String orderNo = data.get("orderId").toString();
-                String replaceOrderNo = generateOrderNo();
+                String replaceOrderNo = Authentication.generateOrderNo();
                 OrderMap orderMap = new OrderMap();
                 orderMap.setReplaceOrderNo(replaceOrderNo);
                 orderMap.setOrderNo(orderNo);
@@ -118,7 +117,7 @@ public class SaveOrderInterface {
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
                     OrderMap orderMap = new OrderMap();
-                    orderMap.setReplaceOrderNo(generateOrderNo());
+                    orderMap.setReplaceOrderNo(Authentication.generateOrderNo());
                     orderMap.setOrderNo(saveOrder.getOrderNo());
                     OrderMapCache.getInstance().addOrderMap(orderMap);
                     data.put("orderId", orderMap.getReplaceOrderNo());
@@ -251,15 +250,6 @@ public class SaveOrderInterface {
             }
         }
         return false;
-    }
-
-    private String generateOrderNo() throws Exception {
-        String newID;
-        do {
-            newID = UUID.randomUUID().toString().toUpperCase().replace("-", "");
-        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(newID));
-
-        return newID;
     }
 
 }

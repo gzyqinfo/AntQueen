@@ -25,7 +25,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 
-@Path("/api/ctw")
+@Path("/api/b2b")
 public class SaveOrderInterface {
     private static Logger logger = LoggerFactory.getLogger(SaveOrderInterface.class);
     public static final float DEFAULT_FEE = 5f;
@@ -102,7 +102,7 @@ public class SaveOrderInterface {
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
                 String orderNo = data.get("orderId").toString();
-                String replaceOrderNo = generateOrderNo();
+                String replaceOrderNo = Authentication.generateOrderNo();
                 OrderMap orderMap = new OrderMap();
                 orderMap.setReplaceOrderNo(replaceOrderNo);
                 orderMap.setOrderNo(orderNo);
@@ -163,7 +163,7 @@ public class SaveOrderInterface {
                     logger.info("finish processing and return ok. {}", antResponse.toJSONString());
                     return Response.status(Response.Status.OK).entity(antResponse.toJSONString()).build();
                 } else {
-                    throw new RuntimeException("No data");
+                    throw new RuntimeException(String.valueOf(qucentResponse.get("msg")));
                 }
             }
 
@@ -190,7 +190,7 @@ public class SaveOrderInterface {
         String encrptedStr = rsaUtil.encryptByPrivateKey(pik, deCryptStr);
 
         // 生成订单编号
-        String orderId = generateOrderNo();
+        String orderId = Authentication.generateOrderNo();
         // 生成时间戳
         String reqTime = System.currentTimeMillis() + "";
 
@@ -291,16 +291,6 @@ public class SaveOrderInterface {
             updatedUser.setBalance(balanceBeforeDebit - debitFee);
             UserCache.getInstance().updateUser(updatedUser);
         }
-    }
-
-
-    private String generateOrderNo() throws Exception {
-        String newID;
-        do {
-            newID = UUID.randomUUID().toString().toUpperCase().replace("-", "");
-        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(newID));
-
-        return newID;
     }
 
 }

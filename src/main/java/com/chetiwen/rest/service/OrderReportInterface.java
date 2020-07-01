@@ -149,7 +149,7 @@ public class OrderReportInterface {
         }
     }
 
-    public JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
+    private JSONObject askSource(Object requestObject, AntRequest originalRequest, String sourceOrderNo) throws Exception {
         JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
         jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
         jsonRequest.put("orderId", Integer.valueOf(sourceOrderNo));

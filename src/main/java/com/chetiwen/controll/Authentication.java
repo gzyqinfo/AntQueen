@@ -1,6 +1,7 @@
 package com.chetiwen.controll;
 
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.cache.GetOrderCache;
 import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.model.User;
 import com.chetiwen.object.antqueen.AntResponse;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLEncoder;
 import java.util.Base64;
+import java.util.UUID;
 
 public class Authentication {
     private static Logger logger = LoggerFactory.getLogger(Authentication.class);
@@ -93,6 +95,15 @@ public class Authentication {
         response.setMsg(msg);
         logger.info("return {}, {}", code, msg);
         return response;
+    }
+
+    public static String generateOrderNo() throws Exception {
+        String newID;
+        do {
+            newID = UUID.randomUUID().toString().toUpperCase().replace("-", "");
+        } while (GetOrderCache.getInstance().getGetOrderMap().containsKey(newID));
+
+        return newID;
     }
 
 }

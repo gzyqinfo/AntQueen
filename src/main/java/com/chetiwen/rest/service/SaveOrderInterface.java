@@ -37,6 +37,9 @@ public class SaveOrderInterface {
         restClient = Client.create(config);
     }
 
+    private String antQueenUrl = "http://localhost:"+PropertyUtil.readValue("app.port")+"/api/saveOrder";
+    private String qucentUrl = "http://localhost:"+PropertyUtil.readValue("app.port")+"/api/b2b/saveOrder";
+
     @POST
     @Path("/queryByVin")
     @Consumes("application/json")
@@ -54,15 +57,18 @@ public class SaveOrderInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             User user = UserCache.getInstance().getByKey(originalRequest.getPartnerId());
             if (user.getDataSource().toUpperCase().contains(ConstData.DATA_SOURCE_ALL)) {
-                return null;
+                ClientResponse response = redirectTo(requestObject, antQueenUrl);
+                JSONObject jsonObject = response.getEntity(JSONObject.class);
+                if (!String.valueOf(jsonObject.get("code").toString()).equals("0")) {
+                    response = redirectTo(requestObject, qucentUrl);
+                }
+                return Response.status(response.getStatus()).entity(jsonObject).build();
             } else if (user.getDataSource().toUpperCase().contains(ConstData.DATA_SOURCE_ANTQUEEN)) {
-                webResource = restClient.resource("http://localhost:"+PropertyUtil.readValue("app.port")+"/api/saveOrder");
-                ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, requestObject);
+                ClientResponse response = redirectTo(requestObject, antQueenUrl);
                 return Response.status(response.getStatus()).entity(response.getEntity(String.class)).build();
             } else if (user.getDataSource().toUpperCase().contains(ConstData.DATA_SOURCE_QUCENT)) {
-                webResource = restClient.resource("http://localhost:"+PropertyUtil.readValue("app.port")+"/api/ctw/saveOrder");
-                ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, requestObject);
-                return null;
+                ClientResponse response = redirectTo(requestObject, qucentUrl);
+                return Response.status(response.getStatus()).entity(response.getEntity(String.class)).build();
             } else {
                 throw new RuntimeException();
             }
@@ -74,6 +80,11 @@ public class SaveOrderInterface {
         } finally {
             logger.info("###################################################################################################");
         }
+    }
+
+    public ClientResponse redirectTo(Object requestObject, String url) {
+        webResource = restClient.resource(url);
+        return webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, requestObject);
     }
 
 }

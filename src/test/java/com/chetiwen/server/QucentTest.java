@@ -40,7 +40,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "WBACR6102L9D22000");
+        json.put("vin", "ljdkaa247e0189327");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json);
 
@@ -51,14 +51,14 @@ public class QucentTest {
     }
 
     @Test
-    public void testQucentSaveOrder() throws Exception {
-        String url = myUrlPrefix+"/api/ctw/saveOrder";
+    public void testMySaveOrder() throws Exception {
+        String url = myUrlPrefix+"/api/queryByVin";
 
         JSONObject json = new JSONObject();
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LVGEN56A9JG235183");
+        json.put("vin", "ljdkaa247e0189327");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
@@ -113,7 +113,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", "A124D53720ED41778A6398CFB1F569C2");
+        json.put("orderId", "7FFFDCD430A740A58BAC9CF55A217DCA");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
