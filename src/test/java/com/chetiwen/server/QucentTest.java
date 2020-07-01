@@ -20,8 +20,8 @@ public class QucentTest {
     private static Client restClient;
     private static WebResource webResource;
 
-//    private String myUrlPrefix = "http://localhost:8090";
-    private String myUrlPrefix = "http://www.chetiwen.com:8139";
+    private String myUrlPrefix = "http://localhost:8090";
+//    private String myUrlPrefix = "http://www.chetiwen.com:8139";
     private final String myPartnerId = "test";
     private final String myPartnerKey = "chetiwen";
 
