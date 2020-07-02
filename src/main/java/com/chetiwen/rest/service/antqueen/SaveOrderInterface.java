@@ -68,7 +68,8 @@ public class SaveOrderInterface {
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
-            if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
+            if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())
+                && ConstData.DATA_SOURCE_ANTQUEEN.equals(SaveOrderCache.getInstance().getSaveOrderMap().get(originalRequest.getVin()).getDataSource())) {
                 //get cache and reset orderId
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
@@ -114,6 +115,7 @@ public class SaveOrderInterface {
                     JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(antResponse.get("data")));
                     saveOrder.setOrderNo(data.get("orderId").toString());
                     saveOrder.setResponseContent(antResponse.toJSONString());
+                    saveOrder.setDataSource(ConstData.DATA_SOURCE_ANTQUEEN);
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
                     OrderMap orderMap = new OrderMap();
@@ -204,11 +206,14 @@ public class SaveOrderInterface {
         debitLog.setOrderNo(orderId);
         debitLog.setVin(request.getVin());
         debitLog.setFeeType("已计费");
-        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis() - 8 * 3600));
+        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis()));
         VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
         if (vinBrand!=null) {
             debitLog.setBrandId(vinBrand.getBrandId());
             debitLog.setBrandName(vinBrand.getBrandName());
+        } else {
+            debitLog.setBrandId("0");
+            debitLog.setBrandName("普通品牌");
         }
         DebitLogCache.getInstance().addDebitLog(debitLog);
 

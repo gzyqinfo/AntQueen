@@ -97,7 +97,8 @@ public class SaveOrderInterface {
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
-            if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())) {
+            if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())
+                && ConstData.DATA_SOURCE_QUCENT.equals(SaveOrderCache.getInstance().getSaveOrderMap().get(originalRequest.getVin()).getDataSource()) ) {
                 //get cache and reset orderId
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
@@ -112,7 +113,11 @@ public class SaveOrderInterface {
 
                 logger.info("got from saveCache for vin: {}", originalRequest.getVin());
 
-                debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_TRUE);
+                if (GetOrderCache.getInstance().getGetOrderMap().containsKey(orderNo)) {
+                    debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_TRUE);
+                } else {
+                    debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_FALSE);
+                }
 
                 if (originalRequest.getCallbackUrl() != null) {
                     new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderNo);
@@ -138,6 +143,7 @@ public class SaveOrderInterface {
                     saveOrder.setVin(originalRequest.getVin());
                     saveOrder.setOrderNo(data.get("orderId").toString());
                     saveOrder.setResponseContent(antResponse.toJSONString());
+                    saveOrder.setDataSource(ConstData.DATA_SOURCE_QUCENT);
                     SaveOrderCache.getInstance().addSaveOrder(saveOrder);
 
                     OrderMap orderMap = new OrderMap();

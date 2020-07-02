@@ -56,13 +56,6 @@ public class SaveOrderCache {
         vinMap.put(saveOrder.getVin(), saveOrder);
     }
 
-    public void updateSaveOrder(Order saveOrder) throws DBAccessException {
-        logger.info("update saveOrder cache for user: {}/{}", saveOrder.getVin(), saveOrder);
-
-        SaveOrderAccessor.getInstance().updateSaveOrder(saveOrder);
-        vinMap.put(saveOrder.getVin(), saveOrder);
-    }
-
     public void delSaveOrder(String orderNo)  throws DBAccessException {
         logger.info("remove saveOrder cache for orderNo: {}", orderNo);
 

@@ -7,6 +7,7 @@ public class Order {
     private String orderNo;
     private String responseContent;
     private Timestamp createTime;
+    private String dataSource;
 
     public String getVin() {
         return vin;
@@ -40,6 +41,14 @@ public class Order {
         this.createTime = createTime;
     }
 
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
@@ -47,6 +56,7 @@ public class Order {
                 ", orderNo='" + orderNo + '\'' +
                 ", responseContent='" + responseContent + '\'' +
                 ", createTime=" + createTime +
+                ", dataSource='" + dataSource + '\'' +
                 '}';
     }
 }

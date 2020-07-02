@@ -20,8 +20,8 @@ public class QucentTest {
     private static Client restClient;
     private static WebResource webResource;
 
-    private String myUrlPrefix = "http://localhost:8090";
-//    private String myUrlPrefix = "http://www.chetiwen.com:8139";
+//    private String myUrlPrefix = "http://localhost:8090";
+    private String myUrlPrefix = "http://www.chetiwen.com:8139";
     private final String myPartnerId = "test";
     private final String myPartnerKey = "chetiwen";
 
@@ -40,7 +40,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "ls5a3abe4ja004944");
+        json.put("vin", "ls4ase2a2hj105826");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json);
 
@@ -58,7 +58,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "ls5a3abe4ja004944");
+        json.put("vin", "ls4ase2e5hj150813");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
@@ -113,7 +113,7 @@ public class QucentTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", "7FFFDCD430A740A58BAC9CF55A217DCA");
+        json.put("orderId", "200FD7C53A1942C3A8788988449D52D4");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -121,5 +121,17 @@ public class QucentTest {
         ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
         System.out.println(response.getEntity(Object.class));
         assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void errorDebut() {
+
+        String input = "{\"reqTime\":\"1593608382938\",\"gid\":\"1042stbRfK1593607670HykvzbqQNnMw\",\"userOrderId\":\"44C16AB46C05468EA09E8F471FF94CA3\",\"data\":{\"resume\":{\"sc\":\"0\",\"mm\":\"49909\",\"ma\":\"0\",\"sab\":\"0\",\"od\":\"0\",\"bw\":\"0\",\"mt\":7,\"en\":\"0\",\"wgj\":\"\",\"fr\":\"0\",\"lastdate\":\"2019-01-16\",\"tc\":\"0\"},\"mc\":[{\"mn\":\"49909\",\"st\":1,\"rd\":\"2019-01-16\",\"pt\":\"更换机油机滤空滤;更换自动变速箱油;更换防冻液;免费\"+1\"服务活动发动机仓清洁;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器滤芯;自动变速箱油(ATF SP-IV);\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"41726\",\"st\":1,\"rd\":\"2018-07-19\",\"pt\":\"前减振器支柱总成, 一侧, R&R;\",\"material\":\"左前减震器;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费\"+1\"服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费\"+1\"服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"}],\"basic\":{\"year\":\"\",\"vin\":\"LJDJAA149G0462946\",\"model\":\"\",\"displacement\":\"\",\"gearbox\":\"\",\"brand\":\"起亚\",\"es\":\"\"},\"time\":\"\"},\"msg\":\"成功\",\"code\":0,\"customerId\":\"0f092952d9a2f7a0c0faea927e178396\",\"charge\":\"true\",\"productCode\":\"BA610030\",\"version\":\"V001\",\"state\":null}";
+        input = "{\"reqTime\":\"1593608380933\",\"gid\":\"1042stbRfK1593607670HykvzbqQNnMw\",\"userOrderId\":\"44C16AB46C05468EA09E8F471FF94CA3\",\"data\":{\"resume\":{\"sc\":\"0\",\"mm\":\"49909\",\"ma\":\"0\",\"sab\":\"0\",\"od\":\"0\",\"bw\":\"0\",\"mt\":7,\"en\":\"0\",\"wgj\":\"\",\"fr\":\"0\",\"lastdate\":\"2019-01-16\",\"tc\":\"0\"},\"mc\":[{\"mn\":\"49909\",\"st\":1,\"rd\":\"2019-01-16\",\"pt\":\"更换机油机滤空滤;更换自动变速箱油;更换防冻液;免费\"+1\"服务活动发动机仓清洁;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器滤芯;自动变速箱油(ATF SP-IV);\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"41726\",\"st\":1,\"rd\":\"2018-07-19\",\"pt\":\"前减振器支柱总成, 一侧, R&R;\",\"material\":\"左前减震器;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费\"+1\"服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费\"+1\"服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费\"+1\"服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"}],\"basic\":{\"year\":\"\",\"vin\":\"LJDJAA149G0462946\",\"model\":\"\",\"displacement\":\"\",\"gearbox\":\"\",\"brand\":\"起亚\",\"es\":\"\"},\"time\":\"\"},\"msg\":\"成功\",\"code\":0,\"customerId\":\"0f092952d9a2f7a0c0faea927e178396\",\"charge\":\"true\",\"productCode\":\"BA610030\",\"version\":\"V001\",\"state\":null}";
+        input = "{\"reqTime\":\"1593608380933\",\"gid\":\"1042stbRfK1593607670HykvzbqQNnMw\",\"userOrderId\":\"44C16AB46C05468EA09E8F471FF94CA3\",\"data\":{\"resume\":{\"sc\":\"0\",\"mm\":\"49909\",\"ma\":\"0\",\"sab\":\"0\",\"od\":\"0\",\"bw\":\"0\",\"mt\":7,\"en\":\"0\",\"wgj\":\"\",\"fr\":\"0\",\"lastdate\":\"2019-01-16\",\"tc\":\"0\"},\"mc\":[{\"mn\":\"49909\",\"st\":1,\"rd\":\"2019-01-16\",\"pt\":\"更换机油机滤空滤;更换自动变速箱油;更换防冻液;免费服务活动发动机仓清洁;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器滤芯;自动变速箱油(ATF SP-IV);\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"41726\",\"st\":1,\"rd\":\"2018-07-19\",\"pt\":\"前减振器支柱总成, 一侧, R&R;\",\"material\":\"左前减震器;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"18128\",\"st\":1,\"rd\":\"2017-07-24\",\"pt\":\"更换机油机滤空滤;免费服务活动发动机仓清洁;2017年“惠”享盛夏服务活动;\",\"material\":\"发动机油;发动机机油滤清器总成;空气滤清器过滤器;\",\"remark\":\"一般维修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"},{\"mn\":\"4812\",\"st\":1,\"rd\":\"2016-10-16\",\"pt\":\"免费服务活动发动机仓清洁;16年惠动金秋服务月活动;智跑2.0L免费首保;\",\"material\":\"发动机油;发动机机油滤清器总成;\",\"remark\":\"保修\",\"ie\":0,\"type\":\"\"}],\"basic\":{\"year\":\"\",\"vin\":\"LJDJAA149G0462946\",\"model\":\"\",\"displacement\":\"\",\"gearbox\":\"\",\"brand\":\"起亚\",\"es\":\"\"},\"time\":\"\"},\"msg\":\"成功\",\"code\":0,\"customerId\":\"0f092952d9a2f7a0c0faea927e178396\",\"charge\":\"true\",\"productCode\":\"BA610030\",\"version\":\"V001\",\"state\":null}";
+        System.out.println(input);
+        JSONObject result = JSONObject.parseObject(input.replace("\n",""));
+        System.out.printf(result.toJSONString());
+
     }
 }

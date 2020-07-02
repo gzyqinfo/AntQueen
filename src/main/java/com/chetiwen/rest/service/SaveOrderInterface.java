@@ -55,6 +55,7 @@ public class SaveOrderInterface {
             }
 
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
+
             User user = UserCache.getInstance().getByKey(originalRequest.getPartnerId());
             if (user.getDataSource().toUpperCase().contains(ConstData.DATA_SOURCE_ALL)) {
                 ClientResponse response = redirectTo(requestObject, antQueenUrl);

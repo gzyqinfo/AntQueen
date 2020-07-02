@@ -43,6 +43,7 @@ public class SaveOrderAccessor {
                 saveOrder.setOrderNo(rs.getString("order_no"));
                 saveOrder.setResponseContent(rs.getString("response_content"));
                 saveOrder.setVin(rs.getString("vin"));
+                saveOrder.setDataSource(rs.getString("data_source"));
                 list.add(saveOrder);
             }
             connection.close();
@@ -56,14 +57,15 @@ public class SaveOrderAccessor {
     public void addSaveOrder(Order saveOrder) throws DBAccessException {
         logger.info("Received add save order request. Order : {}", saveOrder.toString());
 
-        String sql = "insert into save_order(vin, order_no, response_content) " +
-                "values (?,?,?)";
+        String sql = "insert into save_order(vin, order_no, response_content, data_source) " +
+                "values (?,?,?,?)";
         Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, saveOrder.getVin());
             preparedStatement.setString(2, saveOrder.getOrderNo());
             preparedStatement.setString(3, saveOrder.getResponseContent());
+            preparedStatement.setString(4, saveOrder.getDataSource());
             preparedStatement.executeUpdate();
             connection.close();
         } catch (SQLException e) {
@@ -72,23 +74,6 @@ public class SaveOrderAccessor {
         logger.info("inserted SaveOrder record");
     }
 
-    public void updateSaveOrder(Order saveOrder) throws DBAccessException {
-        logger.info("Received save order data request. updated order: {}", saveOrder);
-
-        String sql = new StringBuilder().append("update save_order ")
-                .append("set order_no = \"").append(saveOrder.getOrderNo()).append("\"")
-                .append(", response_content = \"").append(saveOrder.getOrderNo()).append("\"")
-                .append(" where vin = \"").append(saveOrder.getVin()).append("\"")
-                .toString();
-        Connection connection = ConnectionPool.getConnection();
-        try {
-            SqlHelper.executeUpdate (connection, sql);
-            connection.close();
-        } catch (SQLException e) {
-            throw new DBAccessException(connection, e);
-        }
-        logger.info("updated save_order record for vin : {}", saveOrder.getVin());
-    }
 
     public void delSaveOrder(String orderNo) throws DBAccessException {
         logger.info("Received del saveOrder data request. orderNo: {}", orderNo);

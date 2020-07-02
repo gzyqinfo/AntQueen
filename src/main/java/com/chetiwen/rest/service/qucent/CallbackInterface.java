@@ -7,6 +7,7 @@ import com.chetiwen.cache.*;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.CallbackProcessor;
 import com.chetiwen.controll.DataConvertor;
+import com.chetiwen.db.accesser.DebitLogAccessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
 import com.chetiwen.object.antqueen.AntOrderResponse;
@@ -124,11 +125,13 @@ public class CallbackInterface {
 
             //debit
             if ("true".equals(qucentOrderResponse.getCharge())) {
+                String brandName = qucentOrderResponse.getData().getBasic().getBrand();
                 for (OrderMap orderMap : replacedNoList) {
                     for (Map.Entry<String, DebitLog> debitLog : DebitLogCache.getInstance().getDebitLogMap().entrySet()) {
                         if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())
                             && !ConstData.FEE_TYPE_TRUE.equals(debitLog.getValue().getFeeType())) {
                             debitLog.getValue().setFeeType(ConstData.FEE_TYPE_TRUE);
+                            debitLog.getValue().setBrandName(brandName);
                             DebitLogCache.getInstance().updateDebitLogFeeType(debitLog.getValue());
 
                             User updatedUser = UserCache.getInstance().getByKey(debitLog.getValue().getPartnerId());
@@ -144,12 +147,13 @@ public class CallbackInterface {
                         OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getOrderNo());
             }
         } else {
-            //对已收款退费，同时不再支持该订单的查询
+            //删除计费记录，同时不再支持该订单的查询
             for (OrderMap orderMap : replacedNoList) {
                 Iterator<Map.Entry<String, DebitLog>> entries = DebitLogCache.getInstance().getDebitLogMap().entrySet().iterator();
                 while(entries.hasNext()){
                     Map.Entry<String, DebitLog> debitLog = entries.next();
                     if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())) {
+                        DebitLogAccessor.getInstance().delLog(debitLog.getValue().getPartnerId(), debitLog.getValue().getOrderNo());
                         entries.remove();
                     }
                 }
