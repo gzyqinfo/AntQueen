@@ -162,6 +162,7 @@ public class CallbackInterface {
             SaveOrderCache.getInstance().delSaveOrder(qucentOrderResponse.getGid());
         }
 
+        logger.info("###################################################################################################");
         JSONObject jsonResponse = new JSONObject();
         jsonResponse.put("code", 0);
 

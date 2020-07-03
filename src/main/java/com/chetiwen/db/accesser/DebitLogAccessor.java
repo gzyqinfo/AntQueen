@@ -8,10 +8,7 @@ import com.chetiwen.db.model.DebitLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +69,10 @@ public class DebitLogAccessor {
                 userOrder.setOrderNo(rs.getString("order_no"));
                 userOrder.setVin(rs.getString("vin"));
                 userOrder.setFeeType(rs.getString("fee_type"));
+
+                //for China TimeZone
+                userOrder.setCreateTime(new Timestamp(userOrder.getCreateTime().getTime()+1000*3600*8l));
+
                 list.add(userOrder);
             }
             connection.close();

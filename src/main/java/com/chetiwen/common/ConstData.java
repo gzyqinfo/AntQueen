@@ -35,4 +35,11 @@ public class ConstData {
     public static final String DATA_SOURCE_ANTQUEEN ="ANTQUEEN";
     public static final String DATA_SOURCE_QUCENT ="QUCENT";
 
+    //BILL
+    public static final String BILL_TYPE_CHARGE ="充值";
+    public static final String BILL_TYPE_CONSUME ="消费";
+
+    //SQL ACTION
+    public static final String SQL_ACTION_INSERT ="INSERT";
+    public static final String SQL_ACTION_UPDATE ="UPDATE";
 }

@@ -146,7 +146,7 @@ public class SaveOrderInterface {
 
         } catch (Exception e) {
             logger.error("Error: {}",e.getMessage());
-            AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
+            AntResponse response = Authentication.genAntResponse(1107, "品牌临时维护,下单未成功", logger);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
         } finally {
             logger.info("###################################################################################################");
