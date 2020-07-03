@@ -134,7 +134,8 @@ public class CheckVinInterface {
         if (brand != null) {
             if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+brandId)!=null) {
                 data.put("price", UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+brandId).getPrice());
-            } else if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0")!=null) {
+            } else if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0")!=null
+                      && "N".equalsIgnoreCase(brand.getIsSpecial())) {  //非特殊品牌的普通品牌
                 data.put("price", UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0").getPrice());
             } else {
                 data.put("price", brand.getPrice());

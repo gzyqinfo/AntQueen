@@ -153,7 +153,7 @@ public class SaveOrderInterface {
         }
     }
 
-    public JSONObject askSource(Object requestObject, AntRequest originalRequest) throws Exception {
+    private JSONObject askSource(Object requestObject, AntRequest originalRequest) throws Exception {
         JSONObject jsonRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject));
 
         jsonRequest.put("partnerId", PropertyUtil.readValue("app.key"));
@@ -180,13 +180,15 @@ public class SaveOrderInterface {
         float debitFee = 0f;
 
         VinBrand vinBrand = VinBrandCache.getInstance().getByKey(vin);
+        Brand brand = BrandCache.getInstance().getById(vinBrand.getBrandId());
         if (vinBrand != null) {
             String brandId = vinBrand.getBrandId();
             if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+brandId)) {
                 debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+brandId).getPrice();
-            } else if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")) {
+            } else if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")
+                     && (brand==null || "N".equalsIgnoreCase(brand.getIsSpecial()))) {  //非特殊品牌的普通品牌
                 debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+"0").getPrice();
-            } else if (BrandCache.getInstance().getById(brandId) != null) {
+            } else if (brand != null) {
                 debitFee = BrandCache.getInstance().getById(brandId).getPrice();
             }
         }
