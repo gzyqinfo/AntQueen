@@ -132,7 +132,7 @@ public class CallbackInterface {
                             && !ConstData.FEE_TYPE_TRUE.equals(debitLog.getValue().getFeeType())) {
                             debitLog.getValue().setFeeType(ConstData.FEE_TYPE_TRUE);
                             debitLog.getValue().setBrandName(brandName);
-                            DebitLogCache.getInstance().updateDebitLogFeeType(debitLog.getValue());
+                            DebitLogCache.getInstance().updateDebitLogFeeTypeAndBrand(debitLog.getValue());
 
                             User updatedUser = UserCache.getInstance().getByKey(debitLog.getValue().getPartnerId());
                             updatedUser.setBalance(updatedUser.getBalance() - debitLog.getValue().getDebitFee());
