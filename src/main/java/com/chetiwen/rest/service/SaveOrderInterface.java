@@ -84,7 +84,7 @@ public class SaveOrderInterface {
         }
     }
 
-    public ClientResponse redirectTo(Object requestObject, String url) {
+    private ClientResponse redirectTo(Object requestObject, String url) {
         webResource = restClient.resource(url);
         return webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, requestObject);
     }
