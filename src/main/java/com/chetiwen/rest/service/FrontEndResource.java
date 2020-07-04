@@ -197,7 +197,7 @@ public class FrontEndResource {
         data.put("list", s);
         jsonObject.put("data", data);
 
-        logger.info("return {} rows historical orders list for partner : {}", size, originalRequest.getPartnerId());
+        logger.info("return {} rows data list for partner : {}", size, originalRequest.getPartnerId());
         return jsonObject;
     }
 }

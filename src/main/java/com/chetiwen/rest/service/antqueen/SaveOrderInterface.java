@@ -116,7 +116,9 @@ public class SaveOrderInterface {
                     saveOrder.setOrderNo(data.get("orderId").toString());
                     saveOrder.setResponseContent(antResponse.toJSONString());
                     saveOrder.setDataSource(ConstData.DATA_SOURCE_ANTQUEEN);
-                    SaveOrderCache.getInstance().addSaveOrder(saveOrder);
+                    if (!SaveOrderCache.getInstance().getSaveOrderMap().containsKey(saveOrder.getVin())) {
+                        SaveOrderCache.getInstance().addSaveOrder(saveOrder);
+                    }
 
                     OrderMap orderMap = new OrderMap();
                     orderMap.setReplaceOrderNo(Authentication.generateOrderNo());
