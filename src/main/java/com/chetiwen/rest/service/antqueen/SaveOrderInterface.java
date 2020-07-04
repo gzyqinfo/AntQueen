@@ -69,7 +69,7 @@ public class SaveOrderInterface {
             }
 
             if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin())
-                && ConstData.DATA_SOURCE_ANTQUEEN.equals(SaveOrderCache.getInstance().getSaveOrderMap().get(originalRequest.getVin()).getDataSource())) {
+                && ConstData.DATA_SOURCE_ANTQUEEN.equals(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getDataSource())) {
                 //get cache and reset orderId
                 JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));

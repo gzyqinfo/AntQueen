@@ -125,7 +125,7 @@ public class CallbackInterface {
 
             //debit
             if ("true".equals(qucentOrderResponse.getCharge())) {
-                String brandName = qucentOrderResponse.getData().getBasic().getBrand();
+                String brandName = qucentOrderResponse.getData().getBasic().getBrand()==null?"普通品牌":qucentOrderResponse.getData().getBasic().getBrand();
                 for (OrderMap orderMap : replacedNoList) {
                     for (Map.Entry<String, DebitLog> debitLog : DebitLogCache.getInstance().getDebitLogMap().entrySet()) {
                         if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())
