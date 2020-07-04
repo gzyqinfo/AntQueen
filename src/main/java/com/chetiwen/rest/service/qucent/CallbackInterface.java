@@ -61,7 +61,7 @@ public class CallbackInterface {
     @Produces("application/json;charset=UTF-8")
     public Response QucentCallback(Object requestObject) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
-        logger.info("Received Callback request from Qucent");
+        logger.info("Received Callback request from Qucent: {}", requestObject.toString());
 
 //        String url = "http://www.chetiwen.com:8139/api/callback/qucent";
 //        webResource = restClient.resource(url);
