@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.*;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
+import com.chetiwen.controll.DebitComputer;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
@@ -119,7 +120,7 @@ public class CheckVinInterface {
         if (UserRateCache.getInstance().getByKey(originalRequest.getPartnerId()+"/"+"0")!=null) {
             data.put("price", UserRateCache.getInstance().getByKey(originalRequest.getPartnerId() + "/" + "0").getPrice());
         } else {
-            data.put("price", SaveOrderInterface.DEFAULT_FEE);
+            data.put("price", DebitComputer.DEFAULT_FEE);
         }
 
         qucentResponse.put("data", data);

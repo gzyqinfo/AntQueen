@@ -5,7 +5,7 @@ import com.chetiwen.cache.*;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
-import com.chetiwen.db.DBAccessException;
+import com.chetiwen.controll.DebitComputer;
 import com.chetiwen.db.accesser.TransLogAccessor;
 import com.chetiwen.db.model.*;
 import com.chetiwen.object.antqueen.AntRequest;
@@ -21,14 +21,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import java.sql.Timestamp;
 import java.util.*;
 
 
 @Path("/api/b2b")
 public class SaveOrderInterface {
     private static Logger logger = LoggerFactory.getLogger(SaveOrderInterface.class);
-    public static final float DEFAULT_FEE = 5f;
 
     private static RSAUtil rsaUtil = new RSAUtil();
     private static String CUSTOMER_ID = "0f092952d9a2f7a0c0faea927e178396";
@@ -88,11 +86,8 @@ public class SaveOrderInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), ConstData.CLIENT_QUERYVIN_REQUEST);
 
-            //debit
-            float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
-            float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
-
-            if (balanceBeforeDebit - debitFee < 0.00000001) {
+            float debitFee = DebitComputer.getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
+            if (UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance() - debitFee < 0) {
                 AntResponse response = Authentication.genAntResponse(1002, "账户余额不足", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
@@ -114,9 +109,9 @@ public class SaveOrderInterface {
                 logger.info("got from saveCache for vin: {}", originalRequest.getVin());
 
                 if (GetOrderCache.getInstance().getGetOrderMap().containsKey(orderNo)) {
-                    debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_TRUE);
+                    DebitComputer.debit(originalRequest, replaceOrderNo, debitFee, ConstData.FEE_TYPE_TRUE);
                 } else {
-                    debit(originalRequest, replaceOrderNo, balanceBeforeDebit, debitFee, ConstData.FEE_TYPE_FALSE);
+                    DebitComputer.debit(originalRequest, replaceOrderNo, debitFee, ConstData.FEE_TYPE_FALSE);
                 }
 
                 if (originalRequest.getCallbackUrl() != null) {
@@ -160,9 +155,8 @@ public class SaveOrderInterface {
                     } else {
                         feeType = ConstData.FEE_TYPE_FALSE;
                     }
-
                     //debit
-                    debit(originalRequest, orderMap.getReplaceOrderNo(), balanceBeforeDebit, debitFee, feeType);
+                    DebitComputer.debit(originalRequest, orderMap.getReplaceOrderNo(), debitFee, feeType);
 
                     if (originalRequest.getCallbackUrl() != null) {
                         new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());
@@ -184,7 +178,7 @@ public class SaveOrderInterface {
         }
     }
 
-    public JSONObject askSource(AntRequest originalRequest) throws Exception {
+    private JSONObject askSource(AntRequest originalRequest) throws Exception {
 
         JSONObject encrypt = new JSONObject();
         // 产品传入参数
@@ -260,45 +254,5 @@ public class SaveOrderInterface {
         return JSONObject.parseObject(encryptResult);
     }
 
-    private float getDebitFee(String partnerId, String vin) throws DBAccessException {
-        float debitFee = 0f;
-
-        if (UserRateCache.getInstance().getUserRateMap().containsKey(partnerId+"/"+"0")) {
-            debitFee = UserRateCache.getInstance().getByKey(partnerId+"/"+"0").getPrice();
-        }
-
-        //当找不到计费规则或出现0计费时
-        if (debitFee - 0 < 0.00000001) {
-            debitFee = DEFAULT_FEE;
-        }
-        return debitFee;
-    }
-
-    private void debit(AntRequest request, String orderId, float balanceBeforeDebit, float debitFee, String feeType) throws DBAccessException {
-
-        DebitLog debitLog = new DebitLog();
-        debitLog.setFeeType(feeType);
-        debitLog.setPartnerId(request.getPartnerId());
-        debitLog.setBalanceBeforeDebit(balanceBeforeDebit);
-        debitLog.setDebitFee(debitFee);
-        debitLog.setOrderNo(orderId);
-        debitLog.setVin(request.getVin());
-        debitLog.setCreateTime(new Timestamp(System.currentTimeMillis()));
-        VinBrand vinBrand = VinBrandCache.getInstance().getByKey(request.getVin());
-        if (vinBrand!=null) {
-            debitLog.setBrandId(vinBrand.getBrandId());
-            debitLog.setBrandName(vinBrand.getBrandName());
-        } else {
-            debitLog.setBrandId("0");
-            debitLog.setBrandName("普通品牌");
-        }
-        DebitLogCache.getInstance().addDebitLog(debitLog);
-
-        if (ConstData.FEE_TYPE_TRUE.equals(feeType)) {
-            User updatedUser = UserCache.getInstance().getByKey(request.getPartnerId());
-            updatedUser.setBalance(balanceBeforeDebit - debitFee);
-            UserCache.getInstance().updateUser(updatedUser);
-        }
-    }
 
 }
