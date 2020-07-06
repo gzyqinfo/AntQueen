@@ -88,7 +88,7 @@ public class SaveOrderInterface {
                 float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
                 float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
 
-                if (balanceBeforeDebit - debitFee < 0.00000001) {
+                if (balanceBeforeDebit - debitFee < 0) {
                     AntResponse response = Authentication.genAntResponse(1002, "账户余额不足", logger);
                     return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
                 }
@@ -131,7 +131,7 @@ public class SaveOrderInterface {
                     float balanceBeforeDebit = UserCache.getInstance().getByKey(originalRequest.getPartnerId()).getBalance();
                     float debitFee = getDebitFee(originalRequest.getPartnerId(), originalRequest.getVin());
 
-                    if (balanceBeforeDebit - debitFee < 0.00000001) {
+                    if (balanceBeforeDebit - debitFee < 0) {
                         AntResponse badResponse = Authentication.genAntResponse(1002, "账户余额不足", logger);
                         return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(badResponse)).build();
                     }

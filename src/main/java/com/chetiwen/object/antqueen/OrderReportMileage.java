@@ -16,6 +16,8 @@ public class OrderReportMileage {
     }
 
     public String getMileage() {
+        if (mileage.trim().equals(""))
+            return "0";
         return mileage;
     }
 

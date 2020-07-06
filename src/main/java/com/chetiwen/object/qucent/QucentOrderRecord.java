@@ -13,6 +13,8 @@ public class QucentOrderRecord {
     private int ie;
 
     public String getMn() {
+        if (mn.trim().equals(""))
+            return "0";
         return mn;
     }
 
