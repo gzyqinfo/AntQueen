@@ -29,6 +29,7 @@ public class ConstData {
     //FEE TYPE
     public static final String FEE_TYPE_TRUE ="已计费";
     public static final String FEE_TYPE_FALSE ="待计费";
+    public static final String FEE_TYPE_BACK ="已退费";
 
     //DATA SOURCE
     public static final String DATA_SOURCE_ALL ="ALL";
@@ -42,4 +43,5 @@ public class ConstData {
     //SQL ACTION
     public static final String SQL_ACTION_INSERT ="INSERT";
     public static final String SQL_ACTION_UPDATE ="UPDATE";
+    public static final String SQL_ACTION_DELETE ="DELETE";
 }

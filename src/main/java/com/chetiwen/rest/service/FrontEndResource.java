@@ -8,9 +8,11 @@ import com.chetiwen.cache.UserCache;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.DBAccessException;
+import com.chetiwen.db.accesser.DebitLogAuditAccessor;
 import com.chetiwen.db.accesser.UserAuditAccessor;
 import com.chetiwen.db.model.Brand;
 import com.chetiwen.db.model.DebitLog;
+import com.chetiwen.db.model.DebitLogAudit;
 import com.chetiwen.db.model.UserAudit;
 import com.chetiwen.object.BillDetail;
 import com.chetiwen.object.antqueen.AntRequest;
@@ -113,6 +115,24 @@ public class FrontEndResource {
             List<DebitLog> dataList = DebitLogCache.getInstance().getDebitLogMap().values()
                     .stream().filter(debitLog->debitLog.getPartnerId().equals(originalRequest.getPartnerId()))
                     .collect(Collectors.toList());
+
+            List<DebitLogAudit> auditList = DebitLogAuditAccessor.getInstance().getDebitLogAudit(originalRequest.getPartnerId());
+            for (DebitLogAudit audit: auditList) {
+                if (ConstData.SQL_ACTION_DELETE.equalsIgnoreCase(audit.getAction())) {
+                    DebitLog debitLog = new DebitLog();
+                    debitLog.setCreateTime(audit.getCreateTime());
+                    debitLog.setBrandName(audit.getBrandName());
+                    debitLog.setBrandId(audit.getBrandId());
+                    debitLog.setFeeType(ConstData.FEE_TYPE_BACK);
+                    debitLog.setPartnerId(audit.getPartnerId());
+                    debitLog.setOrderNo(audit.getOrderNo());
+                    debitLog.setVin(audit.getVin());
+                    debitLog.setDebitFee(Float.valueOf(audit.getDebitFee()));
+                    debitLog.setBalanceBeforeDebit(Float.valueOf(audit.getBalanceBeforeDebit()));
+
+                    dataList.add(debitLog);
+                }
+            }
 
             JSONObject jsonObject = generateReturnJson(originalRequest, JSONObject.toJSONString(dataList), dataList.size());
             return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
