@@ -52,10 +52,9 @@ public class OrderReportInterface {
     @Path("/getOrderReport")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
-    public Response processRequest(Object requestObject, @Context HttpServletRequest request, @Context HttpServletResponse resp) throws Exception {
+    public Response processRequest(Object requestObject) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Get Order Report request with : {}", requestObject);
-        logger.info("req: {}, resp:{}", request, resp);
         try {
 //            if (!Authentication.jsonSign(requestObject)) {
 //                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);

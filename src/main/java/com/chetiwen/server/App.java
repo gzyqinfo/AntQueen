@@ -33,7 +33,7 @@ public class App {
         }
 
         String restHostName = "http://localhost:";
-        int restPort = Integer.valueOf(PropertyUtil.readValue("app.port")).intValue();
+        int restPort = Integer.valueOf(PropertyUtil.readValue("app.port"));
         String restServiceRootPath = "/";
         String restUri = restHostName+String.valueOf(restPort)+restServiceRootPath;
         JettyHttpContainerFactory.createServer(URI.create(restUri), new RestApplication());
@@ -59,7 +59,7 @@ public class App {
             calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.hour")));
             calendar.set(Calendar.MINUTE, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.minute")));
             calendar.set(Calendar.SECOND, Integer.valueOf(PropertyUtil.readValue("saveOrder.keep.second")));
-            timer.scheduleAtFixedRate(new RegularHouseKeep(), calendar.getTime(), 1000l * 60 * 60 * 24);
+            timer.scheduleAtFixedRate(new RegularHouseKeep(), calendar.getTime(), 1000L * 60 * 60 * 24);
             logger.info("save_order housekeeping task started.");
 
         } catch (DBAccessException e) {
