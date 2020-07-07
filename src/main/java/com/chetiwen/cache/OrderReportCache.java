@@ -41,8 +41,9 @@ public class OrderReportCache {
         logger.info("OrderReportCache reloaded. {} record(s) are refreshed.", idMap.size());
     }
 
-    public Order getByKey(String key) {
-        return idMap.get(key);
+    public Order getByKey(String key) throws DBAccessException {
+        return OrderReportAccessor.getInstance().getReportByOrderNo(key);
+//        return idMap.get(key);
     }
 
     public Map<String, Order> getOrderReportMap() {
@@ -53,6 +54,7 @@ public class OrderReportCache {
         logger.info("add into orderReport cache: {}", orderReport);
 
         OrderReportAccessor.getInstance().addOrderReport(orderReport);
+        orderReport.setResponseContent(null);// For saving memory
         idMap.put(orderReport.getOrderNo(), orderReport);
     }
 

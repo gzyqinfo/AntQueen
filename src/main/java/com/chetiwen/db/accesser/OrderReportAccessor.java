@@ -35,45 +35,19 @@ public class OrderReportAccessor {
         logger.info("Get all order reports request");
         Connection connection = ConnectionPool.getConnection();
         try {
-            ResultSet rs = SqlHelper.executeQuery (connection, "select * from order_report");
+            ResultSet rs = SqlHelper.executeQuery (connection, "select order_no, vin, create_time from order_report");
             List<Order> list = new ArrayList<>();
             while(rs.next()){
                 Order orderReport = new Order();
                 orderReport.setCreateTime(rs.getTimestamp("create_time"));
                 orderReport.setOrderNo(rs.getString("order_no"));
-                orderReport.setResponseContent(rs.getString("response_content"));
+//                orderReport.setResponseContent(rs.getString("response_content"));
                 orderReport.setVin(rs.getString("vin"));
                 list.add(orderReport);
             }
             connection.close();
             logger.info("returned {} row(s) data", list.size());
             return list;
-        } catch (SQLException e) {
-            throw new DBAccessException(connection, e);
-        }
-    }
-
-    public Order getReportByVin(String vin) throws DBAccessException{
-        logger.info("Get order report by vin  request");
-        Connection connection = ConnectionPool.getConnection();
-        try {
-            ResultSet rs = SqlHelper.executeQuery (connection, "select * from order_report where vin = \"" + vin + "\"");
-            List<Order> list = new ArrayList<>();
-            while(rs.next()){
-                Order orderReport = new Order();
-                orderReport.setCreateTime(rs.getTimestamp("create_time"));
-                orderReport.setOrderNo(rs.getString("order_no"));
-                orderReport.setResponseContent(rs.getString("response_content"));
-                orderReport.setVin(rs.getString("vin"));
-                list.add(orderReport);
-            }
-            connection.close();
-            logger.info("returned {} row(s) data", list.size());
-            if (list.size() == 1) {
-                return list.get(0);
-            } else {
-                return null;
-            }
         } catch (SQLException e) {
             throw new DBAccessException(connection, e);
         }

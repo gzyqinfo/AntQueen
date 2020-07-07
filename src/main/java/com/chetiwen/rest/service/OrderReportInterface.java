@@ -23,10 +23,13 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -34,22 +37,25 @@ import javax.ws.rs.core.Response;
 @Path("/api")
 public class OrderReportInterface {
     private static Logger logger = LoggerFactory.getLogger(OrderReportInterface.class);
+    private static String urlPrefix = PropertyUtil.readValue("pc.url.prefix");
     private static Client restClient;
     private static WebResource webResource;
+
     static {
         ClientConfig config = new DefaultClientConfig();
         config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
         restClient = Client.create(config);
     }
 
+
     @POST
     @Path("/getOrderReport")
     @Consumes("application/json")
     @Produces("application/json;charset=UTF-8")
-    public Response processRequest(Object requestObject) throws Exception {
+    public Response processRequest(Object requestObject, @Context HttpServletRequest request, @Context HttpServletResponse resp) throws Exception {
         logger.info("---------------------------------------------------------------------------------------------------");
         logger.info("Received Get Order Report request with : {}", requestObject);
-
+        logger.info("req: {}, resp:{}", request, resp);
         try {
 //            if (!Authentication.jsonSign(requestObject)) {
 //                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
@@ -77,7 +83,7 @@ public class OrderReportInterface {
                 if (order !=null) {
                     OrderReportResponse orderReport = JSONObject.parseObject(order.getResponseContent(), OrderReportResponse.class);
                     resetOrderReport(originalRequest, orderReport);
-                    logger.info("Return OK. {}", orderReport.toString());
+                    logger.info("Return OK. ");
                     return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
                 }
             }
@@ -98,15 +104,15 @@ public class OrderReportInterface {
                 resetOrderReport(originalRequest, orderReport);
 
                 if (!OrderReportCache.getInstance().getOrderReportMap().containsKey(sourceOrderNo)){
-                    Order getOrder = new Order();
-                    getOrder.setOrderNo(sourceOrderNo);
-                    getOrder.setVin(String.valueOf(orderReport.getData().getVin()));
-                    getOrder.setResponseContent(antResponse.toJSONString());
-                    OrderReportCache.getInstance().addOrderReport(getOrder);
+                    Order report = new Order();
+                    report.setOrderNo(sourceOrderNo);
+                    report.setVin(String.valueOf(orderReport.getData().getVin()));
+                    report.setResponseContent(antResponse.toJSONString());
+                    OrderReportCache.getInstance().addOrderReport(report);
                 }
-                logger.info("finish processing and return ok. {}", orderReport.toString());
+                logger.info("finish processing and return ok. ");
                 return Response.status(Response.Status.OK).entity(orderReport.toString()).build();
-            } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了查询中的状态(code:1102) 其它状态不会再改动
+            } else if (!"1102".equals(antResponse.get("code").toString())) {//一个订单, 除了"查询中"状态(code:1102) 其它状态不会再改动
                 //对已收款退费，同时不再支持该订单的查询
                 String partnerId = originalRequest.getPartnerId();
                 String debitKey = partnerId+"/"+originalRequest.getOrderId();;
@@ -137,7 +143,7 @@ public class OrderReportInterface {
 
     private void resetOrderReport(AntRequest originalRequest, OrderReportResponse orderReport) {
         orderReport.getData().setReportNo(originalRequest.getOrderId());
-        orderReport.getData().setReportUrl("http://ctw.che9000.com/#/showOrder?orderNo="+originalRequest.getOrderId());
+        orderReport.getData().setReportUrl(urlPrefix+originalRequest.getOrderId());
         orderReport.getData().setMakeReportDate(originalRequest.getTs());
         if (orderReport.getData().getNormalRepairRecords() != null) {
             for (OrderReportRepairDetail repairDetail : orderReport.getData().getNormalRepairRecords()) {

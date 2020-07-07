@@ -41,8 +41,9 @@ public class GetOrderCache {
         logger.info("GetOrderCache reloaded. {} record(s) are refreshed.", idMap.size());
     }
 
-    public Order getByKey(String key) {
-        return idMap.get(key);
+    public Order getByKey(String key) throws DBAccessException {
+//        return idMap.get(key);
+        return GetOrderAccessor.getInstance().getOrderByOrderNo(key);
     }
 
     public Map<String, Order> getGetOrderMap() {
@@ -53,6 +54,7 @@ public class GetOrderCache {
         logger.info("add into GetOrder cache: {}", getOrder);
 
         GetOrderAccessor.getInstance().addGetOrder(getOrder);
+        getOrder.setResponseContent(null); //for saving memory
         idMap.put(getOrder.getOrderNo(), getOrder);
     }
 

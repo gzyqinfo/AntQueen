@@ -35,13 +35,13 @@ public class GetOrderAccessor {
         logger.info("Get all get orders request");
         Connection connection = ConnectionPool.getConnection();
         try {
-            ResultSet rs = SqlHelper.executeQuery (connection, "select * from get_order");
+            ResultSet rs = SqlHelper.executeQuery (connection, "select order_no, vin, create_time from get_order");
             List<Order> list = new ArrayList<>();
             while(rs.next()){
                 Order getOrder = new Order();
                 getOrder.setCreateTime(rs.getTimestamp("create_time"));
                 getOrder.setOrderNo(rs.getString("order_no"));
-                getOrder.setResponseContent(rs.getString("response_content"));
+//                getOrder.setResponseContent(rs.getString("response_content"));
                 getOrder.setVin(rs.getString("vin"));
                 list.add(getOrder);
             }
@@ -53,34 +53,9 @@ public class GetOrderAccessor {
         }
     }
 
-    public Order getOrderByVin(String vin) throws DBAccessException{
-        logger.info("Get all order by vin  request");
-        Connection connection = ConnectionPool.getConnection();
-        try {
-            ResultSet rs = SqlHelper.executeQuery (connection, "select * from get_order where vin = \"" + vin + "\"");
-            List<Order> list = new ArrayList<>();
-            while(rs.next()){
-                Order getOrder = new Order();
-                getOrder.setCreateTime(rs.getTimestamp("create_time"));
-                getOrder.setOrderNo(rs.getString("order_no"));
-                getOrder.setResponseContent(rs.getString("response_content"));
-                getOrder.setVin(rs.getString("vin"));
-                list.add(getOrder);
-            }
-            connection.close();
-            logger.info("returned {} row(s) data", list.size());
-            if (list.size() == 1) {
-                return list.get(0);
-            } else {
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new DBAccessException(connection, e);
-        }
-    }
 
     public Order getOrderByOrderNo(String orderNo) throws DBAccessException{
-        logger.info("Get all order by order  request");
+        logger.info("Get order by order no: {} ", orderNo);
         Connection connection = ConnectionPool.getConnection();
         try {
             ResultSet rs = SqlHelper.executeQuery (connection, "select * from get_order where order_no = \"" + orderNo + "\"");

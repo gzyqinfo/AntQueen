@@ -165,7 +165,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", "52E93A0C29794A87B4F9D644ABF193D4");
+        json.put("orderId", "4918B90919134E40BB496E1B8FCCF6D0");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 

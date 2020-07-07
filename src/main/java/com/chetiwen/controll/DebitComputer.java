@@ -8,6 +8,7 @@ import com.chetiwen.db.model.DebitLog;
 import com.chetiwen.db.model.User;
 import com.chetiwen.db.model.VinBrand;
 import com.chetiwen.object.antqueen.AntRequest;
+import com.chetiwen.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import java.sql.Timestamp;
 public class DebitComputer {
     private static Logger logger = LoggerFactory.getLogger(DebitComputer.class);
 
-    public static final float DEFAULT_FEE = 5f;
+    public static final float DEFAULT_FEE = Float.valueOf(PropertyUtil.readValue("brand.default.fee"));
 
     public static float getDebitFee(String partnerId, String vin) throws DBAccessException {
         float debitFee = 0f;
