@@ -88,8 +88,11 @@ public class SaveOrderInterface {
 
                 logger.info("got from saveCache for vin: {}", originalRequest.getVin());
 
-                //debit
-                DebitComputer.debit(originalRequest, replaceOrderNo, debitFee, ConstData.FEE_TYPE_TRUE);
+                if (GetOrderCache.getInstance().getGetOrderMap().containsKey(orderNo)) {
+                    DebitComputer.debit(originalRequest, replaceOrderNo, debitFee, ConstData.FEE_TYPE_TRUE);
+                } else {
+                    DebitComputer.debit(originalRequest, replaceOrderNo, debitFee, ConstData.FEE_TYPE_FALSE);
+                }
 
                 if (originalRequest.getCallbackUrl() != null) {
                     new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderNo);
@@ -125,7 +128,7 @@ public class SaveOrderInterface {
                     antResponse.put("data", data);
 
                     //debit
-                    DebitComputer.debit(originalRequest, orderMap.getReplaceOrderNo(), debitFee, ConstData.FEE_TYPE_TRUE);
+                    DebitComputer.debit(originalRequest, orderMap.getReplaceOrderNo(), debitFee, ConstData.FEE_TYPE_FALSE);
 
                     if (originalRequest.getCallbackUrl() != null) {
                         new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());

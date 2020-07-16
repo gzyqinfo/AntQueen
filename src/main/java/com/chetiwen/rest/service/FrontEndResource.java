@@ -10,10 +10,7 @@ import com.chetiwen.controll.Authentication;
 import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.DebitLogAuditAccessor;
 import com.chetiwen.db.accesser.UserAuditAccessor;
-import com.chetiwen.db.model.Brand;
-import com.chetiwen.db.model.DebitLog;
-import com.chetiwen.db.model.DebitLogAudit;
-import com.chetiwen.db.model.UserAudit;
+import com.chetiwen.db.model.*;
 import com.chetiwen.object.BillDetail;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
@@ -181,14 +178,14 @@ public class FrontEndResource {
                         billDetail.setUserId(originalRequest.getPartnerId());
                         billDetail.setUserName(userName);
                         billDetail.setBillType(ConstData.BILL_TYPE_CHARGE);
-                        billDetail.setAmount(after-before);
+                        billDetail.setAmount((float)Math.round((after-before)*100)/100);
                         billDetail.setTimestamp(userAudit.getCreateTime());
                     } else if (before - after > 0.000001) {
                         billDetail = new BillDetail();
                         billDetail.setBillType(ConstData.BILL_TYPE_CONSUME);
                         billDetail.setUserId(originalRequest.getPartnerId());
                         billDetail.setUserName(userName);
-                        billDetail.setAmount(before-after);
+                        billDetail.setAmount((float)Math.round((before-after)*100)/100);
                         billDetail.setTimestamp(userAudit.getCreateTime());
                     }
                 }
@@ -198,6 +195,42 @@ public class FrontEndResource {
             }
 
             JSONObject jsonObject = generateReturnJson(originalRequest, JSONObject.toJSONString(billDetailList), billDetailList.size());
+
+            return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
+        } catch (Exception e) {
+            logger.error("Error: {}", e.getMessage());
+            AntResponse response = Authentication.genAntResponse(1107, "服务异常", logger);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(JSONObject.toJSONString(response)).build();
+        } finally {
+            logger.info("###################################################################################################");
+        }
+    }
+
+    @POST
+    @Path("/change/password")
+    @Consumes("application/json")
+    @Produces("application/json;charset=UTF-8")
+    public Response changePassword(Object requestObject) {
+        logger.info("---------------------------------------------------------------------------------------------------");
+        logger.info("Received Change Password request with : {}", JSONObject.toJSONString(requestObject));
+
+        try {
+            if (!Authentication.jsonSign(requestObject)) {
+                AntResponse response = Authentication.genAntResponse(1001, "签名错误", logger);
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+            }
+
+            AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
+
+
+            //借用OrderID的字段存储新密码
+            if (originalRequest.getOrderId() != null && !originalRequest.equals("")) {
+               User user = UserCache.getInstance().getByKey(originalRequest.getPartnerId());
+               user.setPartnerKey(originalRequest.getOrderId());
+               UserCache.getInstance().updateUser(user);
+            }
+
+            JSONObject jsonObject = generateReturnJson(originalRequest, null, 0);
 
             return Response.status(Response.Status.OK).entity(jsonObject.toJSONString()).build();
         } catch (Exception e) {

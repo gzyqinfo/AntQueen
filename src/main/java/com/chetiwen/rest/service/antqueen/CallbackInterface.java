@@ -5,9 +5,9 @@ import com.chetiwen.cache.*;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
 import com.chetiwen.controll.CallbackProcessor;
+import com.chetiwen.db.accesser.DebitLogAccessor;
 import com.chetiwen.db.accesser.TransLogAccessor;
-import com.chetiwen.db.model.Order;
-import com.chetiwen.db.model.TransactionLog;
+import com.chetiwen.db.model.*;
 import com.chetiwen.object.antqueen.AntOrderResponse;
 import com.chetiwen.object.antqueen.AntResponse;
 import org.slf4j.Logger;
@@ -18,6 +18,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Path("/api")
@@ -42,6 +46,10 @@ public class CallbackInterface {
         try {
             AntOrderResponse orderResponse = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntOrderResponse.class);
 
+            List<OrderMap> replacedNoList =  OrderMapCache.getInstance().getOrderMap().values()
+                    .stream().filter(mapping->mapping.getOrderNo().equals(orderResponse.getData().getOrderId()))
+                    .collect(Collectors.toList());
+
             if (orderResponse.getCode() == 0) {
                 logger.info("orderResponse.getData().getOrderId() is {}", orderResponse.getData().getOrderId());
                 if (!GetOrderCache.getInstance().getGetOrderMap().containsKey(String.valueOf(orderResponse.getData().getOrderId()))) {
@@ -51,10 +59,37 @@ public class CallbackInterface {
                     GetOrderCache.getInstance().addGetOrder(getOrder);
                 }
 
+                for (OrderMap orderMap : replacedNoList) {
+                    for (Map.Entry<String, DebitLog> debitLog : DebitLogCache.getInstance().getDebitLogMap().entrySet()) {
+                        if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())
+                                && !ConstData.FEE_TYPE_TRUE.equals(debitLog.getValue().getFeeType())) {
+                            debitLog.getValue().setFeeType(ConstData.FEE_TYPE_TRUE);
+                            DebitLogCache.getInstance().updateDebitLogFeeTypeAndBrand(debitLog.getValue());
+
+                            User updatedUser = UserCache.getInstance().getByKey(debitLog.getValue().getPartnerId());
+                            updatedUser.setBalance(updatedUser.getBalance() - debitLog.getValue().getDebitFee());
+                            UserCache.getInstance().updateUser(updatedUser);
+                        }
+                    }
+                }
+
                 if (OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())) != null) {
                     new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getUrl(),
                             OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getOrderNo());
                 }
+            } else {//删除计费记录，同时不再支持该订单的查询
+                for (OrderMap orderMap : replacedNoList) {
+                    Iterator<Map.Entry<String, DebitLog>> entries = DebitLogCache.getInstance().getDebitLogMap().entrySet().iterator();
+                    while (entries.hasNext()) {
+                        Map.Entry<String, DebitLog> debitLog = entries.next();
+                        if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())) {
+                            DebitLogAccessor.getInstance().delLog(debitLog.getValue().getPartnerId(), debitLog.getValue().getOrderNo());
+                            entries.remove();
+                        }
+                    }
+                }
+
+                SaveOrderCache.getInstance().delSaveOrder(orderResponse.getData().getOrderId());
             }
 
             AntResponse response = Authentication.genAntResponse(200, "success", logger);

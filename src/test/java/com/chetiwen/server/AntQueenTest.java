@@ -29,6 +29,7 @@ public class AntQueenTest {
 
     private String myUrlPrefix = "http://localhost:8090";
     private final String myPartnerId = "12345678";
+//    private final String myPartnerKey = "newPassWord";
     private final String myPartnerKey = "Keykkjiwihjij";
 
 //    private String myUrlPrefix = "http://www.chetiwen.com:8090";
@@ -288,6 +289,24 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
+        json.put("sign", EncryptUtil.sign(json, myPartnerKey));
+        System.out.println(json.toJSONString());
+
+        webResource = restClient.resource(url);
+        ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class,json);
+        System.out.println(response.getEntity(Object.class));
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testChangePassword() throws Exception {
+        String url = myUrlPrefix+"/api/change/password";
+
+        JSONObject json = new JSONObject();
+        int ts = (int)(System.currentTimeMillis()/1000);
+        json.put("ts", ts);
+        json.put("partnerId", myPartnerId);
+        json.put("orderId", "Keykkjiwihjij");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 

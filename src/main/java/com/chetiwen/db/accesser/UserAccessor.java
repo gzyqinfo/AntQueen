@@ -79,6 +79,7 @@ public class UserAccessor {
 
         String sql = new StringBuilder().append("update user ")
                 .append("set user_name = \"").append(user.getUserName()).append("\"")
+                .append(", partner_key = \"").append(user.getPartnerKey()).append("\"")
                 .append(", balance = ").append(user.getBalance())
                 .append(", data_source = \"").append(user.getDataSource()).append("\"")
                 .append(" where partner_id = \"").append(user.getPartnerId()).append("\"")

@@ -36,7 +36,7 @@ public class DebitLogAuditAccessor {
         logger.info("Get debitLog audit request");
         Connection connection = ConnectionPool.getConnection();
         try {
-            ResultSet rs = SqlHelper.executeQuery (connection, "select * from debit_log_audit where partner_id like '" + partnerId + "%' order by create_time desc");
+            ResultSet rs = SqlHelper.executeQuery (connection, "select * from debit_log_audit where partner_id = '"+partnerId+"' or partner_id = '"+partnerId+"->"+partnerId+"' order by create_time desc");
             List<DebitLogAudit> list = new ArrayList<>();
             while(rs.next()){
                 DebitLogAudit debitLogAudit = new DebitLogAudit();
