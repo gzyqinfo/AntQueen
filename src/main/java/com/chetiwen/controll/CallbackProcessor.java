@@ -3,6 +3,8 @@ package com.chetiwen.controll;
 import com.alibaba.fastjson.JSONObject;
 import com.chetiwen.cache.GetOrderCache;
 import com.chetiwen.cache.OrderCallbackCache;
+import com.chetiwen.cache.OrderMapCache;
+import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.model.Order;
 import com.chetiwen.db.model.OrderCallback;
 import com.chetiwen.object.antqueen.AntOrderResponse;
@@ -18,16 +20,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CallbackProcessor {
     private Logger logger = LoggerFactory.getLogger(CallbackProcessor.class);
 
 
-    public void callback(String url, String orderNo) {
-        logger.info("callback task to {} ");
+    public void callback(String url, String replaceOrderNo) {
+        logger.info("callback task to {} for order: {}", url, replaceOrderNo);
 
         Runnable callbackAction = () -> {
             try {
+                String orderNo = OrderMapCache.getInstance().getByKey(replaceOrderNo).getOrderNo();
                 if (GetOrderCache.getInstance().getGetOrderMap().containsKey(orderNo)) {
                     Order order = GetOrderCache.getInstance().getByKey(orderNo);
 
@@ -43,14 +49,49 @@ public class CallbackProcessor {
                     logger.info("call back to {}", url);
                     WebResource webResource = restClient.resource(url);
                     ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, callbackContent);
-                    logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
-                    OrderCallbackCache.getInstance().delOrderCallback(orderNo);
+                    if (Response.Status.OK.getStatusCode() == response.getStatus()) {
+                        OrderCallbackCache.getInstance().delOrderCallback(replaceOrderNo);
+                        logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
+                    } else {
+                        logger.info("call back to {} unsuccessfully, to retry 5 more times", url);
+                        int number = 5;//设置运行五次
+                        Timer timer = new Timer();
+                        String finalCallbackContent = callbackContent;
+
+                        TimerTask task = new TimerTask() {
+                            int count = 1;	//从1开始计数，每运行一次timertask次数加一，运行制定次数后结束。
+                            @Override
+                            public void run() {
+                                if(count<number){
+                                    logger.info("call back to {} unsuccessfully, to retry {} more times", url, number-count);
+                                    ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, finalCallbackContent);
+                                    if (Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
+                                        try {
+                                            logger.info("call back to {} successfully", url);
+                                            OrderCallbackCache.getInstance().delOrderCallback(replaceOrderNo);
+                                            timer.cancel();
+                                        } catch (DBAccessException e) {
+                                            logger.error("Fail to call back : ", e);
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                } else  {
+                                    logger.info("call back to {} unsuccessfully eventually", url);
+                                    timer.cancel();
+                                }
+                                count++;
+                            }
+                        };
+                        timer.schedule(task, 0,1000);//每隔2分钟运行一次
+                    }
+
                 } else {
                     logger.info("There is no order currently, store it to orderCallback");
                     OrderCallback orderCallback = new OrderCallback();
                     orderCallback.setUrl(url);
-                    orderCallback.setOrderNo(orderNo);
+                    orderCallback.setOrderNo(replaceOrderNo);
                     OrderCallbackCache.getInstance().addOrderCallback(orderCallback);
+
                 }
             } catch (Exception e) {
                 logger.error("Fail to do callback");

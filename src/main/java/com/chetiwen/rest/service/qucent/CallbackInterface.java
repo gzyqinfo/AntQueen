@@ -139,13 +139,13 @@ public class CallbackInterface {
                             UserCache.getInstance().updateUser(updatedUser);
                         }
                     }
+                    if (OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()) != null) {
+                        new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()).getUrl(),
+                                OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()).getOrderNo());
+                    }
                 }
             }
 
-            if (OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()) != null) {
-                new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getUrl(),
-                        OrderCallbackCache.getInstance().getByKey(qucentOrderResponse.getGid()).getOrderNo());
-            }
         } else {
             //删除计费记录，同时不再支持该订单的查询
             for (OrderMap orderMap : replacedNoList) {

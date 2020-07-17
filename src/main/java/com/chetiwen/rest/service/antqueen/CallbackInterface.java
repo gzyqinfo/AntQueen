@@ -58,7 +58,6 @@ public class CallbackInterface {
                     getOrder.setResponseContent(JSONObject.toJSONString(requestObject));
                     GetOrderCache.getInstance().addGetOrder(getOrder);
                 }
-
                 for (OrderMap orderMap : replacedNoList) {
                     for (Map.Entry<String, DebitLog> debitLog : DebitLogCache.getInstance().getDebitLogMap().entrySet()) {
                         if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())
@@ -71,11 +70,10 @@ public class CallbackInterface {
                             UserCache.getInstance().updateUser(updatedUser);
                         }
                     }
-                }
-
-                if (OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())) != null) {
-                    new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getUrl(),
-                            OrderCallbackCache.getInstance().getByKey(String.valueOf(orderResponse.getData().getOrderId())).getOrderNo());
+                    if (OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()) != null) {
+                        new CallbackProcessor().callback(OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()).getUrl(),
+                                OrderCallbackCache.getInstance().getByKey(orderMap.getReplaceOrderNo()).getOrderNo());
+                    }
                 }
             } else {//删除计费记录，同时不再支持该订单的查询
                 for (OrderMap orderMap : replacedNoList) {

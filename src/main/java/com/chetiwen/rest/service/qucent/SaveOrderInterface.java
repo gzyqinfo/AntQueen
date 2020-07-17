@@ -115,7 +115,7 @@ public class SaveOrderInterface {
                 }
 
                 if (originalRequest.getCallbackUrl() != null) {
-                    new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderNo);
+                    new CallbackProcessor().callback(originalRequest.getCallbackUrl(), replaceOrderNo);
                 }
 
                 logger.info("Return OK. {}", cacheResponse.toJSONString());
@@ -159,7 +159,7 @@ public class SaveOrderInterface {
                     DebitComputer.debit(originalRequest, orderMap.getReplaceOrderNo(), debitFee, feeType);
 
                     if (originalRequest.getCallbackUrl() != null) {
-                        new CallbackProcessor().callback(originalRequest.getCallbackUrl(), saveOrder.getOrderNo());
+                        new CallbackProcessor().callback(originalRequest.getCallbackUrl(), orderMap.getReplaceOrderNo());
                     }
 
                     logger.info("finish processing and return ok. {}", antResponse.toJSONString());
