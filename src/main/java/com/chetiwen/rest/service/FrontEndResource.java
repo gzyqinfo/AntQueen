@@ -224,7 +224,7 @@ public class FrontEndResource {
 
 
             //借用OrderID的字段存储新密码
-            if (originalRequest.getOrderId() != null && !originalRequest.equals("")) {
+            if (originalRequest.getOrderId() != null && !originalRequest.getOrderId().equals("")) {
                User user = UserCache.getInstance().getByKey(originalRequest.getPartnerId());
                user.setPartnerKey(originalRequest.getOrderId());
                UserCache.getInstance().updateUser(user);

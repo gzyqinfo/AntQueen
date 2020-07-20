@@ -75,7 +75,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "WBACR6102L9D22000");
+        json.put("vin", "ldc643t35e3188652");
 //        json.put("callbackUrl", URLEncoder.encode("http://example.xxxx.com:port/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
 //        json.put("callbackUrl", ("http://example.xxxx.com:port/api/callback/antqueen"));
@@ -95,7 +95,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", 1464661425);
+        json.put("orderId", "ABCDDABACAGAGADSGASGSA");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 
@@ -146,7 +146,7 @@ public class DemoTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("orderId", "1464661425");
+        json.put("orderId", "ABCDDABACAGAGADSGASGSA");
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
         System.out.println(json.toJSONString());
 

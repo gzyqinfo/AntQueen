@@ -48,8 +48,8 @@ public class CallbackProcessor {
                     Client restClient = Client.create(config);
                     logger.info("call back to {}", url);
                     WebResource webResource = restClient.resource(url);
-                    ClientResponse response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, callbackContent);
-                    if (Response.Status.OK.getStatusCode() == response.getStatus()) {
+                    ClientResponse response = getClientResponse(url, callbackContent, webResource);
+                    if (response != null && Response.Status.OK.getStatusCode() == response.getStatus()) {
                         OrderCallbackCache.getInstance().delOrderCallback(replaceOrderNo);
                         logger.info("receive callback return statement {}", response.getEntity(Object.class).toString());
                     } else {
@@ -64,8 +64,8 @@ public class CallbackProcessor {
                             public void run() {
                                 if(count<number){
                                     logger.info("call back to {} unsuccessfully, to retry {} more times", url, number-count);
-                                    ClientResponse clientResponse = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, finalCallbackContent);
-                                    if (Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
+                                    ClientResponse clientResponse = getClientResponse(url, finalCallbackContent, webResource);
+                                    if (clientResponse != null && Response.Status.OK.getStatusCode() == clientResponse.getStatus()) {
                                         try {
                                             logger.info("call back to {} successfully", url);
                                             OrderCallbackCache.getInstance().delOrderCallback(replaceOrderNo);
@@ -82,7 +82,7 @@ public class CallbackProcessor {
                                 count++;
                             }
                         };
-                        timer.schedule(task, 0,1000);//每隔2分钟运行一次
+                        timer.schedule(task, 0,1000*60*2);//每隔2分钟运行一次
                     }
 
                 } else {
@@ -94,12 +94,22 @@ public class CallbackProcessor {
 
                 }
             } catch (Exception e) {
-                logger.error("Fail to do callback");
+                logger.error("Fail to do callback, {}", e);
                 e.printStackTrace();
             }
 
         };
         new Thread(callbackAction).start();
 
+    }
+
+    private ClientResponse getClientResponse(String url, String callbackContent, WebResource webResource) {
+        ClientResponse response = null;
+        try {
+            response = webResource.type(MediaType.APPLICATION_JSON).post(ClientResponse.class, callbackContent);
+        } catch (Exception e) {
+            logger.error("fail to connect to {}, with error: {}", url, e);
+        }
+        return response;
     }
 }

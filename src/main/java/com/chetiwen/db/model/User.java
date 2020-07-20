@@ -34,7 +34,7 @@ public class User {
     }
 
     public float getBalance() {
-        return balance;
+        return (float)Math.round((balance)*100)/100;
     }
 
     public void setBalance(float balance) {
