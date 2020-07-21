@@ -68,7 +68,7 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "LYVFD41A4JB174297");
+        json.put("vin", "WBACR6102L9D22000");
         json.put("sign", EncryptUtil.sign(JSONObject.parseObject(json.toJSONString()), myPartnerKey));
         System.out.println(json);
 
@@ -107,10 +107,10 @@ public class AntQueenTest {
         int ts = (int)(System.currentTimeMillis()/1000);
         json.put("ts", ts);
         json.put("partnerId", myPartnerId);
-        json.put("vin", "ldc643t32e3116890");
-        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/api/callback/antqueen", "utf-8"));
+        json.put("vin", "WBACR6102L9D22000");
+//        json.put("callbackUrl", URLEncoder.encode("http://39.100.117.169:8139/api/callback/antqueen", "utf-8"));
         json.put("sign", EncryptUtil.sign(json, myPartnerKey));
-        json.put("callbackUrl", ("http://39.100.117.169:8139/api/callback/antqueen"));
+//        json.put("callbackUrl", ("http://39.100.117.169:8139/api/callback/antqueen"));
         System.out.println(json.toJSONString());
 
         webResource = restClient.resource(url);

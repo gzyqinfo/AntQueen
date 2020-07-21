@@ -13,6 +13,7 @@ public class DebitLog {
     private float balanceBeforeDebit;
     private float debitFee;
     private String feeType;
+    private int timeUsedSec;
 
     public int getLogId() {
         return logId;
@@ -94,6 +95,14 @@ public class DebitLog {
         this.feeType = feeType;
     }
 
+    public int getTimeUsedSec() {
+        return timeUsedSec;
+    }
+
+    public void setTimeUsedSec(int timeUsedSec) {
+        this.timeUsedSec = timeUsedSec;
+    }
+
     @Override
     public String toString() {
         return "DebitLog{" +
@@ -107,6 +116,7 @@ public class DebitLog {
                 ", balanceBeforeDebit=" + balanceBeforeDebit +
                 ", debitFee=" + debitFee +
                 ", feeType='" + feeType + '\'' +
+                ", timeUsedSec=" + timeUsedSec +
                 '}';
     }
 }

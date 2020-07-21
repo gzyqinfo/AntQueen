@@ -3,16 +3,17 @@ package com.chetiwen.controll;
 import com.chetiwen.cache.*;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.db.DBAccessException;
-import com.chetiwen.db.model.Brand;
-import com.chetiwen.db.model.DebitLog;
-import com.chetiwen.db.model.User;
-import com.chetiwen.db.model.VinBrand;
+import com.chetiwen.db.accesser.DebitLogAccessor;
+import com.chetiwen.db.model.*;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class DebitComputer {
     private static Logger logger = LoggerFactory.getLogger(DebitComputer.class);
@@ -73,5 +74,45 @@ public class DebitComputer {
             updatedUser.setBalance(updatedUser.getBalance() - debitFee);
             UserCache.getInstance().updateUser(updatedUser);
         }
+    }
+
+    public static void deleteDebit(List<OrderMap> replacedNoList) throws DBAccessException {
+        for (OrderMap orderMap : replacedNoList) {
+            Iterator<Map.Entry<String, DebitLog>> entries = DebitLogCache.getInstance().getDebitLogMap().entrySet().iterator();
+            while (entries.hasNext()) {
+                Map.Entry<String, DebitLog> debitLog = entries.next();
+                if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())) {
+                    calculateTimeUsed(debitLog);
+
+                    DebitLogAccessor.getInstance().delLog(debitLog.getValue().getPartnerId(), debitLog.getValue().getOrderNo());
+                    entries.remove();
+                }
+            }
+        }
+    }
+
+    public static void updateDebit(OrderMap orderMap, String brandName) throws DBAccessException {
+        for (Map.Entry<String, DebitLog> debitLog : DebitLogCache.getInstance().getDebitLogMap().entrySet()) {
+            if (orderMap.getReplaceOrderNo().equals(debitLog.getValue().getOrderNo())
+                    && !ConstData.FEE_TYPE_TRUE.equals(debitLog.getValue().getFeeType())) {
+                debitLog.getValue().setFeeType(ConstData.FEE_TYPE_TRUE);
+                if (brandName != null) {
+                    debitLog.getValue().setBrandName(brandName);
+                }
+                calculateTimeUsed(debitLog);
+
+                User updatedUser = UserCache.getInstance().getByKey(debitLog.getValue().getPartnerId());
+                updatedUser.setBalance(updatedUser.getBalance() - debitLog.getValue().getDebitFee());
+                UserCache.getInstance().updateUser(updatedUser);
+            }
+        }
+    }
+
+    private static void calculateTimeUsed(Map.Entry<String, DebitLog> debitLog) throws DBAccessException {
+        long createTime = debitLog.getValue().getCreateTime().getTime();
+        int timeUsedSec = (int) ((System.currentTimeMillis() - createTime) / 1000);
+        debitLog.getValue().setTimeUsedSec(timeUsedSec);
+        logger.info("Order {} for vin {} query time is {} seconds", debitLog.getValue().getOrderNo(), debitLog.getValue().getVin(), debitLog.getValue().getTimeUsedSec());
+        DebitLogCache.getInstance().updateDebitLog(debitLog.getValue());
     }
 }

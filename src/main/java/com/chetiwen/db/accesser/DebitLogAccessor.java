@@ -31,8 +31,8 @@ public class DebitLogAccessor {
     public void addLog(DebitLog log) throws DBAccessException {
         logger.info("Received add debit log data request. log: {}", log.toString());
 
-        String sql = "insert into debit_log(order_no, vin, partner_id, brand_id, brand_name, balance_before_debit, debit_fee, fee_type) " +
-                "values (?,?,?,?,?,?,?,?)";
+        String sql = "insert into debit_log(order_no, vin, partner_id, brand_id, brand_name, balance_before_debit, debit_fee, fee_type, time_used_sec) " +
+                "values (?,?,?,?,?,?,?,?,?)";
         Connection connection = ConnectionPool.getConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -44,6 +44,7 @@ public class DebitLogAccessor {
             preparedStatement.setFloat(6, log.getBalanceBeforeDebit());
             preparedStatement.setFloat(7, log.getDebitFee());
             preparedStatement.setString(8, log.getFeeType());
+            preparedStatement.setInt(9, log.getTimeUsedSec());
             preparedStatement.executeUpdate();
             connection.close();
         } catch (SQLException e) {
@@ -69,6 +70,7 @@ public class DebitLogAccessor {
                 userOrder.setOrderNo(rs.getString("order_no"));
                 userOrder.setVin(rs.getString("vin"));
                 userOrder.setFeeType(rs.getString("fee_type"));
+                userOrder.setTimeUsedSec(rs.getInt("time_used_sec"));
 
                 //for China TimeZone
                 userOrder.setCreateTime(new Timestamp(userOrder.getCreateTime().getTime()+1000*3600*8l));
@@ -98,12 +100,13 @@ public class DebitLogAccessor {
         logger.info("deleted debit_log record");
     }
 
-    public void updateFeeTypeAndBrand(DebitLog debitLog) throws DBAccessException {
+    public void updateDebitLog(DebitLog debitLog) throws DBAccessException {
         logger.info("Received update debitLog request. updated debitLog: {}", debitLog);
 
         String sql = new StringBuilder().append("update debit_log ")
                 .append("set fee_type = \"").append(debitLog.getFeeType()).append("\"")
                 .append(", brand_name = \"").append(debitLog.getBrandName()).append("\"")
+                .append(", time_used_sec = ").append(debitLog.getTimeUsedSec())
                 .append(" where partner_id = \"").append(debitLog.getPartnerId()).append("\"")
                 .append(" and order_no = \"").append(debitLog.getOrderNo()).append("\"")
                 .toString();
