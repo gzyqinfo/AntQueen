@@ -244,6 +244,8 @@ public class DataConvertor {
                     else if (aChar == '"') {
                         outBuffer.append("\\");
                         aChar = '\"';
+                    } else if (aChar == '\\') {
+                        outBuffer.append("\\");
                     }
                     outBuffer.append(aChar);
                 }

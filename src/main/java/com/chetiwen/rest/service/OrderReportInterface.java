@@ -88,6 +88,7 @@ public class OrderReportInterface {
             }
 
             if (sourceOrderNo.length() > 30) { // Order from Qucent
+
                 logger.info("source order no : {}", sourceOrderNo);
                 AntResponse response = Authentication.genAntResponse(1102, "订单查询中", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();

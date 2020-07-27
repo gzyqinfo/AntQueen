@@ -72,7 +72,7 @@ public class SaveOrderInterface {
                 ClientResponse response = redirectTo(requestObject, qucentUrl);
                 return Response.status(response.getStatus()).entity(response.getEntity(String.class)).build();
             } else {
-                throw new RuntimeException();
+                throw new RuntimeException("Not yet supported data source "+user.getDataSource());
             }
 
         } catch (Exception e) {
