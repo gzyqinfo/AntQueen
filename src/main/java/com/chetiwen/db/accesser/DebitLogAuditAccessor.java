@@ -51,6 +51,7 @@ public class DebitLogAuditAccessor {
                 debitLogAudit.setFeeType(rs.getString("fee_type"));
                 debitLogAudit.setOrderNo(rs.getString("order_no"));
                 debitLogAudit.setVin(rs.getString("vin"));
+                debitLogAudit.setTimeUsedSec(rs.getString("time_used_sec"));
 
                 //for China TimeZone
                 debitLogAudit.setCreateTime(new Timestamp(debitLogAudit.getCreateTime().getTime()+1000*3600*8l));

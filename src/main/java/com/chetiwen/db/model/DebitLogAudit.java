@@ -14,6 +14,7 @@ public class DebitLogAudit {
     private String balanceBeforeDebit;
     private String debitFee;
     private String feeType;
+    private String timeUsedSec;
 
     public String getBalanceBeforeDebit() {
         return balanceBeforeDebit;
@@ -87,7 +88,6 @@ public class DebitLogAudit {
         this.brandName = brandName;
     }
 
-
     public String getVin() {
         return vin;
     }
@@ -104,6 +104,14 @@ public class DebitLogAudit {
         this.feeType = feeType;
     }
 
+    public String getTimeUsedSec() {
+        return timeUsedSec;
+    }
+
+    public void setTimeUsedSec(String timeUsedSec) {
+        this.timeUsedSec = timeUsedSec;
+    }
+
     @Override
     public String toString() {
         return "DebitLogAudit{" +
@@ -118,6 +126,7 @@ public class DebitLogAudit {
                 ", balanceBeforeDebit='" + balanceBeforeDebit + '\'' +
                 ", debitFee='" + debitFee + '\'' +
                 ", feeType='" + feeType + '\'' +
+                ", timeUsedSec=" + timeUsedSec +
                 '}';
     }
 }

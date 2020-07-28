@@ -1,4 +1,4 @@
-package com.chetiwen.object;
+package com.chetiwen.object.user;
 
 import java.sql.Timestamp;
 

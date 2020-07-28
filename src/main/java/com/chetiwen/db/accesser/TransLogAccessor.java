@@ -4,6 +4,7 @@ package com.chetiwen.db.accesser;
 import com.chetiwen.cache.UserCache;
 import com.chetiwen.db.ConnectionPool;
 import com.chetiwen.db.DBAccessException;
+import com.chetiwen.db.SqlHelper;
 import com.chetiwen.db.model.TransactionLog;
 import com.chetiwen.object.antqueen.AntRequest;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class TransLogAccessor {
@@ -58,5 +60,23 @@ public class TransLogAccessor {
         log.setTransactionContent(content);
         log.setLogType(logType);
         addLog(log);
+    }
+
+    public int getTotalPlaceOrderTimes(String partnerId) throws DBAccessException{
+        logger.info("Get total place order times request for {}", partnerId);
+        Connection connection = ConnectionPool.getConnection();
+        int count = 0;
+        try {
+            ResultSet rs = SqlHelper.executeQuery (connection, "SELECT distinct transaction_content FROM transaction_log  where log_type = 'CLIENT_QUERYVIN_REQUEST' and partner_id = '"+partnerId+"'");
+
+            while(rs.next()){
+                count++;
+            }
+            connection.close();
+            logger.info("returned {} row(s) data", count);
+            return count;
+        } catch (SQLException e) {
+            throw new DBAccessException(connection, e);
+        }
     }
 }

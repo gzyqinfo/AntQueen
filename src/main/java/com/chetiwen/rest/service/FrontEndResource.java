@@ -7,11 +7,10 @@ import com.chetiwen.cache.DebitLogCache;
 import com.chetiwen.cache.UserCache;
 import com.chetiwen.common.ConstData;
 import com.chetiwen.controll.Authentication;
-import com.chetiwen.db.DBAccessException;
 import com.chetiwen.db.accesser.DebitLogAuditAccessor;
 import com.chetiwen.db.accesser.UserAuditAccessor;
 import com.chetiwen.db.model.*;
-import com.chetiwen.object.BillDetail;
+import com.chetiwen.object.user.BillDetail;
 import com.chetiwen.object.antqueen.AntRequest;
 import com.chetiwen.object.antqueen.AntResponse;
 import org.slf4j.Logger;
@@ -126,7 +125,7 @@ public class FrontEndResource {
                     debitLog.setVin(audit.getVin());
                     debitLog.setDebitFee(Float.valueOf(audit.getDebitFee()));
                     debitLog.setBalanceBeforeDebit(Float.valueOf(audit.getBalanceBeforeDebit()));
-
+                    debitLog.setTimeUsedSec(audit.getTimeUsedSec()==null?0:Integer.valueOf(audit.getTimeUsedSec()));
                     dataList.add(debitLog);
                 }
             }
