@@ -1,6 +1,7 @@
 package com.chetiwen.rest.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.chetiwen.cache.BrandCache;
 import com.chetiwen.cache.DebitLogCache;
 import com.chetiwen.cache.UserRateCache;
 import com.chetiwen.common.ConstData;
@@ -433,15 +434,35 @@ public class UserResource {
         List<UserRate> userRateList = UserRateCache.getInstance().getUserRateMap().values()
                 .stream().filter(userRate->userRate.getPartnerId().equals(partnerId))
                 .collect(Collectors.toList());
-        StringBuilder userRateString = new StringBuilder("品牌费率");
+        StringBuilder userRateString = new StringBuilder("品牌费率").append("\n\n");
+        List<Brand> brandList = BrandCache.getInstance().getBrandMap().values()
+                .stream().collect(Collectors.toList());
+
         if (userRateList == null || userRateList.size() == 0) {
-            userRateString.append(": \t系统设定").append("\n");
+            float commonPrice = 0f;
+            for (Brand brand: brandList) {
+                if (brand.getIsSpecial().equalsIgnoreCase("N")) {
+                    commonPrice = brand.getPrice();
+                    break;
+                }
+            }
+            userRateString.append("普通品牌: \t").append(commonPrice).append("元\n");
+
         } else {
-            userRateString.append("\n\n");
             for (UserRate userRate : userRateList) {
                 userRateString.append(userRate.getBrandName()).append(": \t").append(userRate.getPrice()).append("元\n");
             }
         }
+        for (Brand brand: brandList) {
+            if (brand.getIsSpecial().equalsIgnoreCase("Y")) {
+                userRateString.append(brand.getBrandName());
+                if (brand.getBrandName().length()<4) {
+                    userRateString.append("   ");
+                }
+                userRateString.append(": \t").append(brand.getPrice()).append("元\n");
+            }
+        }
+
         userRateString.append("------------------------\n\n");
 
         StringBuilder result = new StringBuilder();
