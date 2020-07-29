@@ -354,8 +354,15 @@ public class UserResource {
         int cancelTimeUsed = 0;
         int maxCancelTime = Integer.MIN_VALUE;
         int minCancelTime = Integer.MAX_VALUE;
+        int specialBrandCount = 0;
         Map<String, Integer> brandMap = new HashMap<>();
         for (DebitLog debitLog: dataList) {
+            if (debitLog.getFeeType().equalsIgnoreCase(ConstData.FEE_TYPE_TRUE)) {
+                Brand brand = BrandCache.getInstance().getById(debitLog.getBrandId());
+                if (brand!=null && brand.getIsSpecial().equalsIgnoreCase("Y")) {
+                    specialBrandCount++;
+                }
+            }
             if (!debitLog.getFeeType().equals(ConstData.FEE_TYPE_BACK) && debitLog.getTimeUsedSec()>0) {
                 meaningfulTimeCount ++;
                 meaningfulTimeUsed += debitLog.getTimeUsedSec();
@@ -386,6 +393,7 @@ public class UserResource {
             }
         }
 
+        userStat.setSpecialBrandCount(specialBrandCount);
         if (meaningfulTimeCount == 0) {
             userStat.setAvgQueryTime("N/A");
             userStat.setMaxQueryTime("N/A");
@@ -437,7 +445,7 @@ public class UserResource {
         StringBuilder userRateString = new StringBuilder("品牌费率").append("\n\n");
         List<Brand> brandList = BrandCache.getInstance().getBrandMap().values()
                 .stream().collect(Collectors.toList());
-
+        List<String> userBrandNameList = new ArrayList<>();
         if (userRateList == null || userRateList.size() == 0) {
             float commonPrice = 0f;
             for (Brand brand: brandList) {
@@ -450,11 +458,13 @@ public class UserResource {
 
         } else {
             for (UserRate userRate : userRateList) {
+                userBrandNameList.add(userRate.getBrandName());
                 userRateString.append(userRate.getBrandName()).append(": \t").append(userRate.getPrice()).append("元\n");
             }
         }
+
         for (Brand brand: brandList) {
-            if (brand.getIsSpecial().equalsIgnoreCase("Y")) {
+            if (brand.getIsSpecial().equalsIgnoreCase("Y") && !userBrandNameList.contains(brand.getBrandName())) {
                 userRateString.append(brand.getBrandName());
                 if (brand.getBrandName().length()<4) {
                     userRateString.append("   ");
@@ -502,6 +512,7 @@ public class UserResource {
                 .append("\n")
                 .append("最常查询品牌名称: ").append("\t").append(userStat.getMostFrequentQueryBrandName()).append("\n")
                 .append("最常查询品牌次数: ").append("\t").append(userStat.getMostFrequentQueryBrandTimes()).append("次").append("\n")
+                .append("查询特殊品牌次数: ").append("\t").append(userStat.getSpecialBrandCount()).append("次").append("\n")
         ;
 
         return Response.status(Response.Status.OK).entity(result.toString()).build();

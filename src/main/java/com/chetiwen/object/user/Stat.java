@@ -28,6 +28,7 @@ public class Stat {
     private String minCancelTime;      //无数据退单最短时间
     private String mostFrequentQueryBrandName;  //最常查询品牌名称
     private int mostFrequentQueryBrandTimes;    //最常查询品牌次数
+    private int specialBrandCount;     //查询特殊品牌次数
 
     public String getPartnerId() {
         return partnerId;
@@ -237,6 +238,14 @@ public class Stat {
         this.mostFrequentQueryBrandTimes = mostFrequentQueryBrandTimes;
     }
 
+    public int getSpecialBrandCount() {
+        return specialBrandCount;
+    }
+
+    public void setSpecialBrandCount(int specialBrandCount) {
+        this.specialBrandCount = specialBrandCount;
+    }
+
     @Override
     public String toString() {
         return "Stat{" +
@@ -266,6 +275,7 @@ public class Stat {
                 ", minCancelTime='" + minCancelTime + '\'' +
                 ", mostFrequentQueryBrandName='" + mostFrequentQueryBrandName + '\'' +
                 ", mostFrequentQueryBrandTimes=" + mostFrequentQueryBrandTimes +
+                ", specialBrandCount=" + specialBrandCount +
                 '}';
     }
 }
