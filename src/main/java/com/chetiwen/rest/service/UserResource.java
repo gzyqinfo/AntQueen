@@ -299,6 +299,7 @@ public class UserResource {
                 }
             }
         }
+        userStat.setBalance(UserCache.getInstance().getByKey(partnerId).getBalance());
         userStat.setTotalChargeAmount(totalChargeAmount);
         userStat.setTotalChargeCount(chargeCount);
         userStat.setAvgChargeAmount(Math.round((totalChargeAmount/chargeCount)*100F)/100F);
@@ -478,6 +479,7 @@ public class UserResource {
         StringBuilder result = new StringBuilder();
         result.append("----客户行为统计分析----\n\n")
                 .append("客户名： ").append(userName).append("\n")
+                .append("余额: ").append("\t¥").append(userStat.getBalance()).append("\n")
                 .append("\n")
                 .append("总充值金额: ").append("\t¥").append(userStat.getTotalChargeAmount()).append("\n")
                 .append("总充值次数: ").append("\t").append(userStat.getTotalChargeCount()).append("次\n")

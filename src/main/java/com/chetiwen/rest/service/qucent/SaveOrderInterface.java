@@ -94,7 +94,7 @@ public class SaveOrderInterface {
 
             if (SaveOrderCache.getInstance().getSaveOrderMap().containsKey(originalRequest.getVin()) ) {
                 //get cache and reset orderId
-                JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByKey(originalRequest.getVin()).getResponseContent());
+                JSONObject cacheResponse = JSONObject.parseObject(SaveOrderCache.getInstance().getByVin(originalRequest.getVin()).getResponseContent());
                 JSONObject data = JSONObject.parseObject(JSONObject.toJSONString(cacheResponse.get("data")));
                 String orderNo = data.get("orderId").toString();
                 String replaceOrderNo = Authentication.generateOrderNo();

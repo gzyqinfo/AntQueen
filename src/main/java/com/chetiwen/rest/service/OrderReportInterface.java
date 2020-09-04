@@ -64,13 +64,13 @@ public class OrderReportInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), ConstData.CLIENT_ORDERREP_REQUEST);
 
-            String sourceOrderNo = originalRequest.getOrderId();
-//            if (!DebitLogCache.getInstance().getDebitLogMap().containsKey(originalRequest.getPartnerId()+"/"+sourceOrderNo)) {
-//                logger.info("No debit record for {} with order : {}", originalRequest.getPartnerId(), sourceOrderNo);
-//                AntResponse response = Authentication.genAntResponse(1200, "无效订单号", logger);
-//                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
-//            }
+            if (!SaveOrderCache.getInstance().containsOrderId(OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo())) {
+                logger.info("No saved record for {} with order : {}", originalRequest.getPartnerId(), originalRequest.getOrderId());
+                AntResponse response = Authentication.genAntResponse(1200, "订单号失效", logger);
+                return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
+            }
 
+            String sourceOrderNo = originalRequest.getOrderId();
             if (OrderMapCache.getInstance().getOrderMap().containsKey(originalRequest.getOrderId())) {
                 logger.info("there is replaced order");
                 sourceOrderNo = OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo();

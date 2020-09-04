@@ -16,9 +16,11 @@ public class SaveOrderCache {
     private static SaveOrderCache instance;
 
     private Map<String, Order> vinMap;
+    private Map<String, Order> orderMap;
 
     private SaveOrderCache() throws DBAccessException {
         vinMap = new HashMap<>();
+        orderMap = new HashMap<>();
         reload();
     }
 
@@ -31,18 +33,32 @@ public class SaveOrderCache {
 
     public void reload() throws DBAccessException {
         vinMap.clear();
+        orderMap.clear();
 
         List<Order> list = SaveOrderAccessor.getInstance().getAllSavedOrders();
 
         list.forEach(order->{
             vinMap.put(order.getVin(), order);
+            orderMap.put(order.getOrderNo(), order);
         });
 
         logger.info("SaveOrderCache reloaded. {} record(s) are refreshed.", vinMap.size());
     }
 
-    public Order getByKey(String key) {
+    public Order getByVin(String key) {
         return vinMap.get(key);
+    }
+
+    public boolean containsVin(String vin) {
+        return vinMap.containsKey(vin);
+    }
+
+    public Order getByOrderId(String orderId) {
+        return orderMap.get(orderId);
+    }
+
+    public boolean containsOrderId(String orderId) {
+        return orderMap.containsKey(orderId);
     }
 
     public Map<String, Order> getSaveOrderMap() {
@@ -54,6 +70,7 @@ public class SaveOrderCache {
 
         SaveOrderAccessor.getInstance().addSaveOrder(saveOrder);
         vinMap.put(saveOrder.getVin(), saveOrder);
+        orderMap.put(saveOrder.getOrderNo(), saveOrder);
     }
 
     public void delSaveOrder(String orderNo)  throws DBAccessException {
@@ -61,6 +78,7 @@ public class SaveOrderCache {
 
         SaveOrderAccessor.getInstance().delSaveOrder(orderNo);
         vinMap.values().removeIf(value -> value.getOrderNo().equals(orderNo));
+        orderMap.remove(orderNo);
     }
 
     public void houseKeepSaveOrder(int days)  throws DBAccessException {

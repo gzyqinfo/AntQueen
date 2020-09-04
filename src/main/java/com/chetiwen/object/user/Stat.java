@@ -4,6 +4,7 @@ public class Stat {
     private String partnerId;
     private String userName;
 
+    private float balance;          //余额
     private int totalChargeCount;   //充值总次数
     private float totalChargeAmount;//充值总金额
     private float avgChargeAmount;  //平均每次充值金额
@@ -246,11 +247,20 @@ public class Stat {
         this.specialBrandCount = specialBrandCount;
     }
 
+    public float getBalance() {
+        return balance;
+    }
+
+    public void setBalance(float balance) {
+        this.balance = balance;
+    }
+
     @Override
     public String toString() {
         return "Stat{" +
                 "partnerId='" + partnerId + '\'' +
                 ", userName='" + userName + '\'' +
+                ", balance=" + balance +
                 ", totalChargeCount=" + totalChargeCount +
                 ", totalChargeAmount=" + totalChargeAmount +
                 ", avgChargeAmount=" + avgChargeAmount +
