@@ -23,13 +23,11 @@ import com.sun.jersey.api.json.JSONConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -66,7 +64,7 @@ public class OrderReportInterface {
 
             if (!SaveOrderCache.getInstance().containsOrderId(OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo())) {
                 logger.info("No saved record for {} with order : {}", originalRequest.getPartnerId(), originalRequest.getOrderId());
-                AntResponse response = Authentication.genAntResponse(1200, "订单号失效", logger);
+                AntResponse response = Authentication.genAntResponse(1200, "订单失效,请重新查询", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
