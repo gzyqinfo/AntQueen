@@ -62,7 +62,8 @@ public class OrderReportInterface {
             AntRequest originalRequest = JSONObject.parseObject(JSONObject.toJSONString(requestObject), AntRequest.class);
             TransLogAccessor.getInstance().AddTransLog(originalRequest, JSONObject.toJSONString(requestObject), ConstData.CLIENT_ORDERREP_REQUEST);
 
-            if (!SaveOrderCache.getInstance().containsOrderId(OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo())) {
+            if (!SaveOrderCache.getInstance().containsOrderId(OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo())
+                 && !Authentication.jsonSign(requestObject) ) {
                 logger.info("No saved record for {} with order : {}", originalRequest.getPartnerId(), originalRequest.getOrderId());
                 AntResponse response = Authentication.genAntResponse(1200, "订单失效,请重新查询", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
