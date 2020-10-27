@@ -65,7 +65,7 @@ public class OrderReportInterface {
             if (!SaveOrderCache.getInstance().containsOrderId(OrderMapCache.getInstance().getByKey(originalRequest.getOrderId()).getOrderNo())
                  && !Authentication.jsonSign(requestObject) ) {
                 logger.info("No saved record for {} with order : {}", originalRequest.getPartnerId(), originalRequest.getOrderId());
-                AntResponse response = Authentication.genAntResponse(1200, "订单失效,请重新查询", logger);
+                AntResponse response = Authentication.genAntResponse(1200, "订单失效,请重新登录", logger);
                 return Response.status(Response.Status.OK).entity(JSONObject.toJSONString(response)).build();
             }
 
